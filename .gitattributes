@@ -1,0 +1,7 @@
+# Shell scripts must stay LF or they break on macOS/Linux (bad interpreter: ...^M)
+*.sh text eol=lf
+
+# Binary assets — never touch line endings
+*.webp  binary
+*.woff2 binary
+*.png   binary

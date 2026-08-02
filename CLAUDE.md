@@ -14,7 +14,7 @@ A drop log + single-page dashboard for **Chambers of Xeric** (Great Olm) purples
 |------|------|
 | `src/dashboard_src.html` | **The editable source.** CDN-based (small, easy to edit). Make all dashboard changes here, then run the build. |
 | `src/vendor/` | Build inputs inlined by the build: `fonts_inline.css`, `chart.umd.min.js`, `favicon_line.txt` (Olmlet favicon data-URI). |
-| `build.ps1` | Inlines the vendor assets into `src/dashboard_src.html` to produce `index.html`. |
+| `build.sh` | Inlines the vendor assets into `src/dashboard_src.html` to produce `index.html`. Cross-platform (POSIX sh + awk + cat). |
 | `index.html` | **Generated — do not hand-edit.** Self-contained (fonts, Chart.js, item icons all inlined as base64 `data:` URIs), ~400 KB. |
 | `cox-drop-log.txt` | Raw data: a single fixed-width text table, one row per purple. Source of truth for the drops. |
 | `assets/icons/*.webp` | Item sprites (also inlined into `src` as `ICONS`; this folder is the original source). |
@@ -81,20 +81,23 @@ When refreshing prices, update the `PRICES` map and `PRICE_ASOF` together.
 Edit `src/dashboard_src.html`, then regenerate `index.html`:
 
 ```
-pwsh ./build.ps1          # or:  powershell -ExecutionPolicy Bypass -File build.ps1
+./build.sh          # or:  sh build.sh
 ```
 
-The script (from its header): pulls the `<style>` CSS and `<body>` out of the source, inlines
-`fonts_inline.css` (in place of the Google Fonts `<link>`s) and `chart.umd.min.js` (in place of the
-Chart.js CDN `<script>`), wraps it in a standalone `<!doctype>` document with a viewport meta and the
-Olmlet favicon, and writes `index.html`. It prints byte count and a mojibake check (fails if > 0).
+`build.sh` needs only **POSIX sh + awk + cat** — present out of the box on macOS and Linux, and on
+Windows via Git Bash (you already have it with git). No Node/Python/PowerShell required. It pulls the
+`<style>` CSS and `<body>` out of the source, inlines `fonts_inline.css` (in place of the Google Fonts
+`<link>`s) and `chart.umd.min.js` (in place of the Chart.js CDN `<script>`), wraps it in a standalone
+`<!doctype>` document with a viewport meta and the Olmlet favicon, and writes `index.html`.
 
-> **Encoding gotcha (important).** `src/dashboard_src.html` is UTF-8 and contains em-dashes (`—`) and
-> non-breaking spaces. Windows PowerShell 5.1's `Get-Content -Raw` decodes BOM-less files as the ANSI
-> codepage, corrupting those into mojibake (`Â`, `â€"`) baked into the output. `build.ps1` therefore
-> reads via `[System.IO.File]::ReadAllText(path, UTF8)` and **keeps itself pure-ASCII** (it emits the
-> em-dash in the `<title>` via `[char]0x2014`) — because a BOM-less `.ps1` with Unicode literals would
-> hit the same ANSI misread and fail to parse. Preserve both when editing the script.
+> **Encoding — why the build streams bytes.** `src/dashboard_src.html` is UTF-8 with em-dashes (`—`)
+> and non-breaking spaces. `build.sh` never decodes/re-encodes text — `awk`/`cat` pass bytes straight
+> through — so clean UTF-8 in stays clean UTF-8 out (no mojibake). The script itself is pure ASCII and
+> emits the `<title>` em-dash as raw UTF-8 bytes via `printf '\342\200\224'`.
+>
+> An earlier `build.ps1` produced mojibake (`Â`, `â€"`) because Windows PowerShell 5.1's
+> `Get-Content -Raw` decodes BOM-less files as the ANSI codepage. If you ever reintroduce a PowerShell
+> build, read via `[System.IO.File]::ReadAllText(path, UTF8)` and keep the script ASCII-only.
 
 **Only `index.html` is maintained.** A Claude-artifact flavour existed earlier (no
 `<!doctype>/<html>/<head>/<body>` wrappers; emoji-only favicon) but the user has asked to stop
