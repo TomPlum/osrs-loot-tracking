@@ -20,8 +20,20 @@ It renders:
 - **Drops over time** — cumulative purples, split by raid mode.
 - **Drought watch** — the longest dry streaks, measured in KC.
 - **Loot table breakdown** — every unique, ranked by how often it dropped, with in-game icons.
+- **Loot value** — the whole haul priced at the current Grand Exchange rates.
 - **Loot by raider** — the Tom vs Will split, reconciled from collection logs.
 - **Drops per year** and a **recent feed** of the last 12 drops.
+
+The time-based graphs (**Drops over time**, **Loot value**, **Drops per year**) each carry a
+**Both / Tom / Will** selector in their top-right corner. The individual views include shared drops
+(either brother), so Tom's and Will's totals overlap on the raids they did together.
+
+### Loot value
+
+The **Loot value** section prices every purple against the live Grand Exchange, sourced from the
+[Ancient chest unique drop table](https://oldschool.runescape.wiki/w/Ancient_chest) on the wiki.
+Untradeable drops (the Olmlet pet, Metamorphic dust, and Twisted ancestral colour kits) carry no GE
+value and are counted separately. Prices are a snapshot — baked into the page at build time, not live.
 
 ## Repository contents
 
