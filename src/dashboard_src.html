@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Chambers of Xeric — Drop Log</title>
+<link rel="icon" type="image/webp" href="data:image/webp;base64,UklGRngCAABXRUJQVlA4TGwCAAAvGkAHEI/joG0kSRpsxx/Q7l53fA8JR20kSVJ9B9LyB3VWORi0bSSph+3449lvmsx/Gc58d4ckFSQkIUkqIEkqoUMFCRUkCUUnFZBUIIAJCQmSCSAhE+ifBCRFJg6UkAnhUBMHpAjNFeiqsOKo67PNlRAEpdmxV3vDxOwITMz/mX3u3xXczxJEHVYFQYdUEO1WsFfBqr1yeH7P87ue37VXs+N5X7NjdrxePwMs27ZNRzv2Y+xKXsq2bdu2cfv/F7xqwr4R/Z8A0ShIYR+swhsJW3i8hyAJ+fIPN3yHIIknCTvE5fUXqp5fJG3Ji6sfCOLl6fkfHs4vP8Dv/pasvdfH25Ozi6O5/paiLeLp/uQsolt9nZUF2Pp9ujsNKIbVUem1RXw/3HlDWsyScgW0s96RiiWSqUSm3Nk/goawLJs6Z8ojnYVoPGe1NYQlKUe7mkqHB2lV5ooWWA9z1cNtOaO5vXu8Z35/Zxq1MDMshzg7PTaYSxgla2zv+C/fglqT/a1ycGJ28WB7Q1FJDgUdhoUaIz1WdnD28e7yRFmPSJkwpN/MtUEQ0wMdby+P93fXZ3d6cC0sTSoBJVmuGu+VqewXPz/u5V0mvCpVMqiYuV0IDLTm0izIlp6xudGWrLqyJuXqxuYWBKY6i4l0Jp0pd/SPg4N53e1yOvxKFAJjLekE47FkvtIBQbC1kNCcvogJgWErZhq6Fo0X9yBIgiM5p0/LLIP9xaihRkJKsgRRG3SGE2UI9OSiuur1RBINENFMuRMCnWlT93u8kXixkda+QwqiNWEGfW6pxAqNzICCJBgOeF1+NZ5vgBB1UVfYBg==">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --stone-950:#120f0c;
+    --stone-900:#1a1510;
+    --stone-850:#211a13;
+    --stone-800:#2a2118;
+    --stone-700:#3a2f22;
+    --stone-600:#59493355;
+    --gold:#d4af37;
+    --gold-bright:#f2ce62;
+    --gold-dim:#8a7027;
+    --purple:#da56f5;
+    --purple-bright:#e88bff;
+    --purple-dim:#7d3f96;
+    --jungle:#4c6b3f;
+    --jungle-bright:#7ba566;
+    --blood:#9c3a35;
+    --blood-bright:#d1584f;
+    --parchment:#ece2c6;
+    --parchment-dim:#c9bd9c;
+    --parchment-faint:#8f8467;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:
+      radial-gradient(ellipse 1200px 600px at 20% -10%, #2c2415 0%, transparent 60%),
+      radial-gradient(ellipse 900px 520px at 76% -6%, rgba(218,86,245,.11) 0%, transparent 60%),
+      radial-gradient(ellipse 1000px 700px at 100% 10%, #1e2b18 0%, transparent 55%),
+      var(--stone-950);
+    color:var(--parchment);
+    font-family:'Inter',sans-serif;
+    -webkit-font-smoothing:antialiased;
+    padding:0 0 60px 0;
+  }
+  .wrap{max-width:1160px;margin:0 auto;padding:0 28px;}
+
+  /* ---------- texture ---------- */
+  .stone-band{
+    height:6px;
+    background:repeating-linear-gradient(90deg,var(--gold-dim) 0 14px, transparent 14px 28px);
+    opacity:.55;
+  }
+
+  /* ---------- hero ---------- */
+  .hero{
+    position:relative;
+    padding:64px 28px 40px;
+    border-bottom:1px solid var(--stone-700);
+    overflow:hidden;
+  }
+  .hero::before{
+    content:"";
+    position:absolute; inset:0;
+    background-image:
+      linear-gradient(135deg, transparent 48%, rgba(212,175,55,.05) 49%, rgba(212,175,55,.05) 51%, transparent 52%),
+      linear-gradient(45deg, transparent 48%, rgba(212,175,55,.05) 49%, rgba(212,175,55,.05) 51%, transparent 52%);
+    background-size:64px 64px;
+    pointer-events:none;
+  }
+  .hero-inner{max-width:1160px;margin:0 auto;position:relative;}
+  .eyebrow{
+    font-family:'JetBrains Mono',monospace;
+    letter-spacing:.22em;
+    text-transform:uppercase;
+    font-size:12px;
+    color:var(--gold);
+    display:flex; align-items:center; gap:12px;
+  }
+  .eyebrow .rule{flex:0 0 32px;height:1px;background:var(--gold-dim);}
+  h1{
+    font-family:'Cinzel',serif;
+    font-weight:900;
+    font-size:56px;
+    line-height:1.02;
+    margin:18px 0 6px;
+    color:var(--gold-bright);
+    text-shadow:0 2px 28px rgba(218,86,245,.32);
+    letter-spacing:.01em;
+  }
+  .subtitle{
+    color:var(--parchment-dim);
+    font-size:16px;
+    max-width:640px;
+    line-height:1.55;
+    margin-bottom:34px;
+  }
+  .subtitle b{color:var(--parchment);font-weight:600;}
+
+  .hero-stats{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:1px;
+    background:var(--stone-700);
+    border:1px solid var(--stone-700);
+    border-radius:10px;
+    overflow:hidden;
+  }
+  .hstat{background:var(--stone-900);padding:20px 22px;}
+  .hstat .num{
+    font-family:'Cinzel',serif;
+    font-weight:700;
+    font-size:32px;
+    color:var(--gold-bright);
+    line-height:1;
+  }
+  .hstat .lbl{
+    margin-top:8px;
+    font-size:11.5px;
+    text-transform:uppercase;
+    letter-spacing:.1em;
+    color:var(--parchment-faint);
+  }
+  .hstat.jungle .num{color:var(--jungle-bright);}
+  .hstat.blood .num{color:var(--blood-bright);}
+  .hstat.purple .num{color:var(--purple);}
+
+  /* ---------- sections ---------- */
+  section{padding:52px 0;}
+  section.divider-top{border-top:1px solid var(--stone-800);}
+  .sec-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:26px;flex-wrap:wrap;gap:10px;}
+  .sec-title{
+    font-family:'Cinzel',serif;
+    font-size:24px;
+    font-weight:700;
+    color:var(--parchment);
+    display:flex;align-items:center;gap:12px;
+  }
+  .sec-title .tag{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;
+    letter-spacing:.14em;
+    color:var(--stone-950);
+    background:var(--gold);
+    padding:3px 9px;
+    border-radius:3px;
+    text-transform:uppercase;
+    font-weight:700;
+  }
+  .sec-note{color:var(--parchment-faint);font-size:13.5px;max-width:420px;text-align:right;}
+
+  .card{
+    background:linear-gradient(180deg,var(--stone-900),var(--stone-850));
+    border:1px solid var(--stone-700);
+    border-radius:12px;
+    padding:26px;
+  }
+
+  /* kc counters */
+  .kc-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+  .kc-card{
+    background:linear-gradient(180deg,var(--stone-900),var(--stone-850));
+    border:1px solid var(--stone-700);
+    border-radius:12px;
+    padding:24px 26px;
+    position:relative;
+  }
+  .kc-mode{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;
+    letter-spacing:.16em;
+    text-transform:uppercase;
+    color:var(--parchment-faint);
+    margin-bottom:10px;
+  }
+  .kc-num{
+    font-family:'Cinzel',serif;
+    font-size:44px;
+    font-weight:900;
+    line-height:1;
+  }
+  .kc-card.reg .kc-num{color:var(--jungle-bright);}
+  .kc-card.cm .kc-num{color:var(--blood-bright);}
+  .kc-num sub-unit{font-size:16px;}
+  .kc-sub{font-size:13px;color:var(--parchment-dim);margin-top:6px;}
+  .kc-bar-track{height:6px;border-radius:4px;background:var(--stone-700);margin-top:16px;overflow:hidden;}
+  .kc-bar-fill{height:100%;border-radius:4px;}
+  .kc-card.reg .kc-bar-fill{background:linear-gradient(90deg,var(--jungle),var(--jungle-bright));}
+  .kc-card.cm .kc-bar-fill{background:linear-gradient(90deg,var(--blood),var(--blood-bright));}
+
+  /* charts grid */
+  .grid-2{display:grid;grid-template-columns:1.3fr 1fr;gap:20px;}
+  .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+  canvas{max-width:100%;}
+
+  .legend-row{display:flex;gap:18px;margin-top:14px;flex-wrap:wrap;}
+  .legend-item{display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--parchment-dim);}
+  .dot{width:9px;height:9px;border-radius:2px;display:inline-block;}
+
+  /* item table */
+  table{width:100%;border-collapse:collapse;font-size:13.5px;}
+  th{
+    text-align:left;
+    font-family:'JetBrains Mono',monospace;
+    font-size:10.5px;
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    color:var(--parchment-faint);
+    padding:0 12px 10px;
+    border-bottom:1px solid var(--stone-700);
+    font-weight:600;
+  }
+  td{padding:10px 12px;border-bottom:1px solid var(--stone-800);color:var(--parchment-dim);}
+  tr:last-child td{border-bottom:none;}
+  td.item-name{color:var(--parchment);font-weight:500;}
+  .item-cell{display:inline-flex;align-items:center;gap:10px;}
+  .loot-ico{height:24px;width:auto;max-width:28px;flex:0 0 auto;object-fit:contain;filter:drop-shadow(0 1px 2px rgba(0,0,0,.5));}
+  .loot-ico-blank{display:inline-block;width:24px;}
+  .bar-cell{width:180px;}
+  .mini-bar-track{height:9px;background:var(--stone-800);border-radius:3px;overflow:hidden;}
+  .mini-bar-fill{height:100%;background:linear-gradient(90deg,var(--purple-dim),var(--purple));border-radius:3px;}
+  .count-num{font-family:'JetBrains Mono',monospace;color:var(--gold);font-weight:700;}
+
+  /* feed */
+  .feed{display:flex;flex-direction:column;gap:0;}
+  .feed-row{
+    display:grid;
+    grid-template-columns:96px 1fr auto auto;
+    align-items:center;
+    gap:14px;
+    padding:13px 4px;
+    border-bottom:1px solid var(--stone-800);
+  }
+  .feed-row:last-child{border-bottom:none;}
+  .feed-date{font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--parchment-faint);}
+  .feed-item{font-weight:600;color:var(--parchment);font-size:14px;display:flex;align-items:center;gap:9px;}
+  .feed-who{
+    font-size:10.5px;
+    font-family:'JetBrains Mono',monospace;
+    padding:2px 8px;
+    border-radius:20px;
+    border:1px solid var(--stone-700);
+    color:var(--parchment-faint);
+  }
+  .feed-who.tom{color:var(--gold-bright);border-color:var(--gold-dim);}
+  .feed-who.will{color:var(--jungle-bright);border-color:var(--jungle);}
+  .feed-mode{
+    font-family:'JetBrains Mono',monospace;
+    font-size:10.5px;
+    letter-spacing:.08em;
+    padding:2px 9px;
+    border-radius:3px;
+    text-transform:uppercase;
+    font-weight:700;
+  }
+  .feed-mode.cm{background:rgba(156,58,53,.22);color:var(--blood-bright);}
+  .feed-mode.reg{background:rgba(76,107,63,.22);color:var(--jungle-bright);}
+
+  /* callouts */
+  .callout-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+  .callout{
+    background:linear-gradient(180deg,var(--stone-900),var(--stone-850));
+    border:1px solid var(--stone-700);
+    border-left:3px solid var(--gold-dim);
+    border-radius:10px;
+    padding:22px 24px;
+  }
+  .callout.dry{border-left-color:var(--blood);}
+  .callout h4{
+    margin:0 0 8px;
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--parchment-faint);
+  }
+  .callout .big{font-family:'Cinzel',serif;font-size:26px;color:var(--gold-bright);font-weight:700;}
+  .callout p{margin:8px 0 0;font-size:13.5px;color:var(--parchment-dim);line-height:1.5;}
+
+  footer{
+    text-align:center;
+    padding:40px 20px 10px;
+    color:var(--parchment-faint);
+    font-size:12px;
+    font-family:'JetBrains Mono',monospace;
+    letter-spacing:.05em;
+  }
+
+  /* ---------- graph raider selector ---------- */
+  .chart-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px;flex-wrap:wrap;}
+  .chart-lede{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--parchment-faint);}
+  .seg{display:inline-flex;background:var(--stone-800);border:1px solid var(--stone-700);border-radius:9px;padding:3px;gap:2px;}
+  .seg button{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;
+    color:var(--parchment-faint);background:transparent;border:0;cursor:pointer;
+    padding:5px 13px;border-radius:6px;transition:background .15s,color .15s;
+  }
+  .seg button:hover{color:var(--parchment-dim);}
+  .seg button.active{color:var(--stone-950);}
+  .seg button.active[data-p="both"]{background:var(--gold);}
+  .seg button.active[data-p="tom"]{background:var(--gold-bright);}
+  .seg button.active[data-p="will"]{background:var(--jungle-bright);}
+  .seg button:focus-visible{outline:2px solid var(--gold);outline-offset:2px;}
+
+  /* ---------- loot value ---------- */
+  .value-hero{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 26px;margin-bottom:26px;}
+  .value-big{font-family:'Cinzel',serif;font-size:46px;font-weight:900;color:var(--purple);line-height:1;text-shadow:0 2px 22px rgba(218,86,245,.3);}
+  .value-gp{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--parchment-faint);}
+  .value-meta{font-size:13px;color:var(--parchment-dim);line-height:1.5;}
+  .value-meta b{color:var(--parchment);font-weight:600;}
+  td.val-num{font-family:'JetBrains Mono',monospace;color:var(--gold);font-weight:700;text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;}
+  td.val-unit{font-family:'JetBrains Mono',monospace;color:var(--parchment-dim);text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;}
+  td.val-ct{font-family:'JetBrains Mono',monospace;color:var(--parchment-faint);text-align:right;}
+  .val-untradeable{color:var(--parchment-faint);font-style:italic;}
+
+  @media (max-width:800px){
+    h1{font-size:36px;}
+    .hero-stats{grid-template-columns:1fr 1fr;}
+    .kc-grid,.grid-2,.grid-3,.callout-grid{grid-template-columns:1fr;}
+    .feed-row{grid-template-columns:70px 1fr auto;}
+    .feed-mode{display:none;}
+  }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-inner">
+    <div class="eyebrow"><span class="rule"></span>CHAMBERS OF XERIC · GREAT OLM · THE WOLFO BROS</div>
+    <h1>The Wolfo Bros Ledger</h1>
+    <p class="subtitle">Every purple since <b>August 2020</b> — from the old Chambers grind through the Challenge Mode era. <b>94 drops</b> logged across <b id="span-years">–</b> years, split between two separate kill-count trackers: standard Chambers and Challenge Mode. Almost every drop is a <b>Wolfo Bros</b> haul — <b>Wolfo</b> (Tom) &amp; <b>Wolfo JR</b> (Will) — with shared duplicates reconciled from their collection logs.</p>
+    <div class="hero-stats" id="hero-stats"></div>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <section>
+    <div class="sec-head">
+      <div class="sec-title"><span class="tag">01</span>Kill Count Progress</div>
+      <div class="sec-note">Regular Chambers and Challenge Mode run on independent counters — CM was entered on 16 Jan 2022.</div>
+    </div>
+    <div class="kc-grid" id="kc-grid"></div>
+  </section>
+
+  <section class="divider-top">
+    <div class="sec-head">
+      <div class="sec-title"><span class="tag">02</span>Drops Over Time</div>
+      <div class="sec-note">Cumulative purples, coloured by raid mode. Flat stretches are droughts.</div>
+    </div>
+    <div class="card">
+      <div class="chart-head">
+        <span class="chart-lede">Cumulative purples</span>
+        <div class="seg" id="seg-timeline" role="group" aria-label="Filter by raider">
+          <button data-p="both" class="active">Both</button>
+          <button data-p="tom">Tom</button>
+          <button data-p="will">Will</button>
+        </div>
+      </div>
+      <canvas id="timelineChart" height="90"></canvas>
+      <div class="legend-row">
+        <span class="legend-item"><span class="dot" style="background:var(--jungle-bright)"></span>Regular Chambers</span>
+        <span class="legend-item"><span class="dot" style="background:var(--blood-bright)"></span>Challenge Mode</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="divider-top">
+    <div class="sec-head">
+      <div class="sec-title"><span class="tag">03</span>Drought Watch</div>
+      <div class="sec-note">The longest gaps between purples, measured in kill count — not calendar time.</div>
+    </div>
+    <div class="callout-grid" id="dry-grid"></div>
+  </section>
+
+  <section class="divider-top">
+    <div class="sec-head">
+      <div class="sec-title"><span class="tag">04</span>Loot Table Breakdown</div>
+      <div class="sec-note">Every unique item, ranked by how often it's actually dropped.</div>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <table id="item-table">
+          <thead><tr><th>Item</th><th>Share</th><th style="text-align:right">Count</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div class="card">
+        <canvas id="modeChart" height="220"></canvas>
+        <div class="legend-row" id="mode-legend"></div>
+        <div style="height:22px"></div>
+        <canvas id="whoChart" height="220"></canvas>
+        <div class="legend-row" id="who-legend"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="divider-top">
+    <div class="sec-head">
+      <div class="sec-title"><span class="tag">05</span>Loot Value</div>
+      <div class="sec-note">Live Grand Exchange prices for every purple in the log. Tom / Will views include shared drops (either brother).</div>
+    </div>
+    <div class="card">
+      <div class="chart-head">
+        <span class="chart-lede">Total haul at current GE</span>
+        <div class="seg" id="seg-value" role="group" aria-label="Filter by raider">
+          <button data-p="both" class="active">Both</button>
+          <button data-p="tom">Tom</button>
+          <button data-p="will">Will</button>
+        </div>
+      </div>
+      <div class="value-hero">
+        <div class="value-big" id="value-total">–</div>
+        <div class="value-gp" id="value-total-gp"></div>
+      </div>
+      <div class="value-meta" id="value-meta"></div>
+      <div style="height:22px"></div>
+      <div style="overflow-x:auto;">
+        <table id="value-table">
+          <thead><tr><th>Item</th><th style="text-align:right">Unit price</th><th style="text-align:right">Dropped</th><th style="text-align:right">Total value</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="divider-top">
+    <div class="sec-head">
+      <div class="sec-title"><span class="tag">06</span>Drops per Year</div>
+      <div class="sec-note">2022 was the peak — the year Challenge Mode was unlocked and pushed hard.</div>
+    </div>
+    <div class="card">
+      <div class="chart-head">
+        <span class="chart-lede">Purples per year</span>
+        <div class="seg" id="seg-year" role="group" aria-label="Filter by raider">
+          <button data-p="both" class="active">Both</button>
+          <button data-p="tom">Tom</button>
+          <button data-p="will">Will</button>
+        </div>
+      </div>
+      <canvas id="yearChart" height="80"></canvas>
+    </div>
+  </section>
+
+  <section class="divider-top">
+    <div class="sec-head">
+      <div class="sec-title"><span class="tag">07</span>Loot by Raider</div>
+      <div class="sec-note">Reconciled from Tom &amp; Will's collection logs — shared duplicates can't be split by date, but these totals are exact.</div>
+    </div>
+    <div class="card">
+      <div id="raider-tot" style="display:flex;gap:16px;margin-bottom:22px;flex-wrap:wrap;"></div>
+      <div style="overflow-x:auto;">
+        <table id="raider-table">
+          <thead><tr><th>Item</th><th style="width:150px">Tom</th><th style="text-align:right">#</th><th style="width:150px">Will</th><th style="text-align:right">#</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="divider-top">
+    <div class="sec-head">
+      <div class="sec-title"><span class="tag">08</span>Recent Feed</div>
+      <div class="sec-note">Last 12 logged drops, most recent first.</div>
+    </div>
+    <div class="card">
+      <div class="feed" id="feed"></div>
+    </div>
+  </section>
+
+</div>
+
+<footer>PARSED FROM RAW DROP LOG · 94 ENTRIES · ATTRIBUTION RECONCILED FROM TOM &amp; WILL COLLECTION LOGS · 6 UNDATED EARLY DROPS EXCLUDED FROM TIME-BASED CHARTS</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+<script>
+function initDashboard() {
+const DATA = [{"date": "??/??/2020", "item": "Kodai Insignia", "kc": null, "mode": "Regular", "who": "Tom/Will"}, {"date": "??/??/2020", "item": "Dexterous Prayer Scroll", "kc": null, "mode": "Regular", "who": "Tom/Will"}, {"date": "??/??/2020", "item": "Dinh's Bulwark", "kc": null, "mode": "Regular", "who": "Tom/Will"}, {"date": "??/??/2020", "item": "Dexterous Prayer Scroll", "kc": null, "mode": "Regular", "who": "Tom/Will"}, {"date": "??/??/2020", "item": "Dexterous Prayer Scroll", "kc": null, "mode": "Regular", "who": "Tom/Will"}, {"date": "??/??/2020", "item": "Elder Maul", "kc": null, "mode": "Regular", "who": null}, {"date": "20/08/2020", "item": "Arcane Prayer Scroll", "kc": 255, "mode": "Regular", "who": "Tom/Will", "iso": "2020-08-20"}, {"date": "13/09/2020", "item": "Ancestral Hat", "kc": 253, "mode": "Regular", "who": "Tom/Will", "iso": "2020-09-13"}, {"date": "17/09/2020", "item": "Arcane Prayer Scroll", "kc": 258, "mode": "Regular", "who": "Tom/Will", "iso": "2020-09-17"}, {"date": "24/09/2020", "item": "Dragon Claws", "kc": 266, "mode": "Regular", "who": "Tom/Will", "iso": "2020-09-24"}, {"date": "16/10/2020", "item": "Dexterous Prayer Scroll", "kc": 296, "mode": "Regular", "who": "Tom/Will", "iso": "2020-10-16"}, {"date": "31/10/2020", "item": "Dexterous Prayer Scroll", "kc": 323, "mode": "Regular", "who": "Tom/Will", "iso": "2020-10-31"}, {"date": "02/11/2020", "item": "Elder Maul", "kc": 326, "mode": "Regular", "who": null, "iso": "2020-11-02"}, {"date": "16/11/2020", "item": "Arcane Prayer Scroll", "kc": 355, "mode": "Regular", "who": "Tom/Will", "iso": "2020-11-16"}, {"date": "26/11/2020", "item": "Twisted Buckler", "kc": 372, "mode": "Regular", "who": "Tom/Will", "iso": "2020-11-26"}, {"date": "30/11/2020", "item": "Dexterous Prayer Scroll", "kc": 382, "mode": "Regular", "who": "Tom/Will", "iso": "2020-11-30"}, {"date": "26/12/2020", "item": "Kodai Insignia", "kc": 404, "mode": "Regular", "who": "Tom/Will", "iso": "2020-12-26"}, {"date": "24/01/2021", "item": "Arcane Prayer Scroll", "kc": 406, "mode": "Regular", "who": "Tom/Will", "iso": "2021-01-24"}, {"date": "01/10/2021", "item": "Dexterous Prayer Scroll", "kc": 410, "mode": "Regular", "who": "Tom/Will", "iso": "2021-10-01"}, {"date": "11/12/2021", "item": "Kodai Insignia", "kc": 418, "mode": "Regular", "who": "Tom/Will", "iso": "2021-12-11"}, {"date": "12/12/2021", "item": "Arcane Prayer Scroll", "kc": 420, "mode": "Regular", "who": "Tom/Will", "iso": "2021-12-12"}, {"date": "24/12/2021", "item": "Ancestral Robe Bottom", "kc": 421, "mode": "Regular", "who": "Will", "iso": "2021-12-24"}, {"date": "16/01/2022", "item": "Arcane Prayer Scroll", "kc": 1, "mode": "CM", "who": "Tom/Will", "iso": "2022-01-16"}, {"date": "23/01/2022", "item": "Arcane Prayer Scroll", "kc": 5, "mode": "CM", "who": "Tom/Will", "iso": "2022-01-23"}, {"date": "26/02/2022", "item": "Arcane Prayer Scroll", "kc": 440, "mode": "Regular", "who": "Tom/Will", "iso": "2022-02-26"}, {"date": "26/02/2022", "item": "Dexterous Prayer Scroll", "kc": 441, "mode": "Regular", "who": "Tom/Will", "iso": "2022-02-26"}, {"date": "04/03/2022", "item": "Kodai Insignia", "kc": 452, "mode": "Regular", "who": "Tom/Will", "iso": "2022-03-04"}, {"date": "05/03/2022", "item": "Ancestral Robe Top", "kc": 455, "mode": "Regular", "who": "Tom", "iso": "2022-03-05"}, {"date": "12/03/2022", "item": "Dexterous Prayer Scroll", "kc": 14, "mode": "CM", "who": "Tom/Will", "iso": "2022-03-12"}, {"date": "18/03/2022", "item": "Arcane Prayer Scroll", "kc": 21, "mode": "CM", "who": "Tom/Will", "iso": "2022-03-18"}, {"date": "18/03/2022", "item": "Arcane Prayer Scroll", "kc": 22, "mode": "CM", "who": "Tom/Will", "iso": "2022-03-18"}, {"date": "20/03/2022", "item": "Dexterous Prayer Scroll", "kc": 25, "mode": "CM", "who": "Tom/Will", "iso": "2022-03-20"}, {"date": "22/03/2022", "item": "Twisted Kit", "kc": 27, "mode": "CM", "who": "Will", "iso": "2022-03-22"}, {"date": "26/03/2022", "item": "Dexterous Prayer Scroll", "kc": 30, "mode": "CM", "who": "Tom/Will", "iso": "2022-03-26"}, {"date": "26/03/2022", "item": "Dexterous Prayer Scroll", "kc": 31, "mode": "CM", "who": "Tom/Will", "iso": "2022-03-26"}, {"date": "28/03/2022", "item": "Dexterous Prayer Scroll", "kc": 35, "mode": "CM", "who": "Tom/Will", "iso": "2022-03-28"}, {"date": "28/03/2022", "item": "Twisted Kit", "kc": 35, "mode": "CM", "who": "Will", "iso": "2022-03-28"}, {"date": "04/04/2022", "item": "Dragon Hunter Crossbow", "kc": 48, "mode": "CM", "who": "Tom/Will", "iso": "2022-04-04"}, {"date": "08/04/2022", "item": "Arcane Prayer Scroll", "kc": 52, "mode": "CM", "who": "Tom/Will", "iso": "2022-04-08"}, {"date": "08/04/2022", "item": "Olmlet", "kc": 52, "mode": "CM", "who": "Tom", "iso": "2022-04-08"}, {"date": "09/04/2022", "item": "Elder Maul", "kc": 53, "mode": "CM", "who": null, "iso": "2022-04-09"}, {"date": "10/04/2022", "item": "Ancestral Robe Bottom", "kc": 57, "mode": "CM", "who": "Will", "iso": "2022-04-10"}, {"date": "18/04/2022", "item": "Twisted Kit", "kc": 72, "mode": "CM", "who": "Will", "iso": "2022-04-18"}, {"date": "22/04/2022", "item": "Twisted Buckler", "kc": 77, "mode": "CM", "who": "Tom/Will", "iso": "2022-04-22"}, {"date": "24/04/2022", "item": "Twisted Buckler", "kc": 80, "mode": "CM", "who": "Tom/Will", "iso": "2022-04-24"}, {"date": "07/05/2022", "item": "Arcane Prayer Scroll", "kc": 102, "mode": "CM", "who": "Tom/Will", "iso": "2022-05-07"}, {"date": "07/05/2022", "item": "Dexterous Prayer Scroll", "kc": 104, "mode": "CM", "who": "Tom/Will", "iso": "2022-05-07"}, {"date": "08/05/2022", "item": "Arcane Prayer Scroll", "kc": 105, "mode": "CM", "who": "Tom/Will", "iso": "2022-05-08"}, {"date": "13/05/2022", "item": "Arcane Prayer Scroll", "kc": 112, "mode": "CM", "who": "Tom/Will", "iso": "2022-05-13"}, {"date": "23/05/2022", "item": "Twisted Buckler", "kc": 126, "mode": "CM", "who": "Tom/Will", "iso": "2022-05-23"}, {"date": "28/05/2022", "item": "Dexterous Prayer Scroll", "kc": 131, "mode": "CM", "who": "Tom/Will", "iso": "2022-05-28"}, {"date": "31/05/2022", "item": "Dexterous Prayer Scroll", "kc": 141, "mode": "CM", "who": "Tom/Will", "iso": "2022-05-31"}, {"date": "01/06/2022", "item": "Dinh's Bulwark", "kc": 142, "mode": "CM", "who": "Tom/Will", "iso": "2022-06-01"}, {"date": "04/06/2022", "item": "Dexterous Prayer Scroll", "kc": 147, "mode": "CM", "who": "Tom/Will", "iso": "2022-06-04"}, {"date": "19/06/2022", "item": "Arcane Prayer Scroll", "kc": 163, "mode": "CM", "who": "Tom/Will", "iso": "2022-06-19"}, {"date": "25/06/2022", "item": "Twisted Bow", "kc": 165, "mode": "CM", "who": "Will", "iso": "2022-06-25"}, {"date": "29/06/2022", "item": "Twisted Kit", "kc": 169, "mode": "CM", "who": "Tom", "iso": "2022-06-29"}, {"date": "30/06/2022", "item": "Twisted Buckler", "kc": 170, "mode": "CM", "who": "Tom/Will", "iso": "2022-06-30"}, {"date": "17/07/2022", "item": "Twisted Kit", "kc": 182, "mode": "CM", "who": "Tom", "iso": "2022-07-17"}, {"date": "01/08/2022", "item": "Arcane Prayer Scroll", "kc": 203, "mode": "CM", "who": "Tom/Will", "iso": "2022-08-01"}, {"date": "01/08/2022", "item": "Arcane Prayer Scroll", "kc": 205, "mode": "CM", "who": "Tom/Will", "iso": "2022-08-01"}, {"date": "05/08/2022", "item": "Dexterous Prayer Scroll", "kc": 212, "mode": "CM", "who": "Tom/Will", "iso": "2022-08-05"}, {"date": "12/08/2022", "item": "Ancestral Hat", "kc": 220, "mode": "CM", "who": "Tom/Will", "iso": "2022-08-12"}, {"date": "12/08/2022", "item": "Twisted Kit", "kc": 220, "mode": "CM", "who": "Tom/Will", "iso": "2022-08-12"}, {"date": "13/08/2022", "item": "Dexterous Prayer Scroll", "kc": 221, "mode": "CM", "who": "Tom/Will", "iso": "2022-08-13"}, {"date": "17/08/2022", "item": "Dexterous Prayer Scroll", "kc": 225, "mode": "CM", "who": "Tom/Will", "iso": "2022-08-17"}, {"date": "28/12/2022", "item": "Arcane Prayer Scroll", "kc": 239, "mode": "CM", "who": "Tom/Will", "iso": "2022-12-28"}, {"date": "30/12/2022", "item": "Twisted Buckler", "kc": 244, "mode": "CM", "who": "Tom/Will", "iso": "2022-12-30"}, {"date": "30/12/2022", "item": "Olmlet", "kc": 244, "mode": "CM", "who": "Will", "iso": "2022-12-30"}, {"date": "30/12/2022", "item": "Dexterous Prayer Scroll", "kc": 245, "mode": "CM", "who": "Tom/Will", "iso": "2022-12-30"}, {"date": "31/12/2022", "item": "Twisted Buckler", "kc": 246, "mode": "CM", "who": "Tom/Will", "iso": "2022-12-31"}, {"date": "03/02/2023", "item": "Dexterous Prayer Scroll", "kc": 260, "mode": "CM", "who": "Tom/Will", "iso": "2023-02-03"}, {"date": "05/02/2023", "item": "Dragon Claws", "kc": 264, "mode": "CM", "who": "Tom/Will", "iso": "2023-02-05"}, {"date": "12/02/2023", "item": "Dexterous Prayer Scroll", "kc": 265, "mode": "CM", "who": "Tom/Will", "iso": "2023-02-12"}, {"date": "18/02/2023", "item": "Arcane Prayer Scroll", "kc": 266, "mode": "CM", "who": "Tom/Will", "iso": "2023-02-18"}, {"date": "26/02/2023", "item": "Ancestral Robe Top", "kc": 271, "mode": "CM", "who": "Tom", "iso": "2023-02-26"}, {"date": "19/03/2023", "item": "Arcane Prayer Scroll", "kc": 279, "mode": "CM", "who": "Tom/Will", "iso": "2023-03-19"}, {"date": "03/12/2023", "item": "Metamorphic Dust", "kc": 293, "mode": "CM", "who": "Tom", "iso": "2023-12-03"}, {"date": "10/12/2023", "item": "Arcane Prayer Scroll", "kc": 296, "mode": "CM", "who": "Tom/Will", "iso": "2023-12-10"}, {"date": "12/12/2023", "item": "Dinh's Bulwark", "kc": 297, "mode": "CM", "who": "Tom/Will", "iso": "2023-12-12"}, {"date": "13/12/2023", "item": "Dexterous Prayer Scroll", "kc": 298, "mode": "CM", "who": "Tom/Will", "iso": "2023-12-13"}, {"date": "30/12/2023", "item": "Dexterous Prayer Scroll", "kc": 311, "mode": "CM", "who": "Tom/Will", "iso": "2023-12-30"}, {"date": "31/12/2023", "item": "Ancestral Hat", "kc": 312, "mode": "CM", "who": "Aaron IM", "iso": "2023-12-31"}, {"date": "01/01/2024", "item": "Twisted Kit", "kc": 314, "mode": "CM", "who": "Tom", "iso": "2024-01-01"}, {"date": "08/01/2024", "item": "Twisted Kit", "kc": 323, "mode": "CM", "who": "Tom", "iso": "2024-01-08"}, {"date": "12/01/2024", "item": "Ancestral Robe Bottom", "kc": 327, "mode": "CM", "who": "Tom", "iso": "2024-01-12"}, {"date": "07/01/2024", "item": "Dragon Claws", "kc": 330, "mode": "CM", "who": "Tom", "iso": "2024-01-07"}, {"date": "10/02/2024", "item": "Arcane Prayer Scroll", "kc": 332, "mode": "CM", "who": "Tom", "iso": "2024-02-10"}, {"date": "15/04/2024", "item": "Dinh's Bulwark", "kc": 335, "mode": "CM", "who": "Tom", "iso": "2024-04-15"}, {"date": "05/04/2024", "item": "Twisted Kit", "kc": 337, "mode": "CM", "who": "Will", "iso": "2024-04-05"}, {"date": "06/05/2024", "item": "Twisted Bow", "kc": 341, "mode": "CM", "who": "Tom", "iso": "2024-05-06"}, {"date": "02/01/2026", "item": "Arcane Prayer Scroll", "kc": 354, "mode": "CM", "who": "Tom", "iso": "2026-01-02"}, {"date": "17/01/2026", "item": "Arcane Prayer Scroll", "kc": 365, "mode": "CM", "who": "Tom", "iso": "2026-01-17"}, {"date": "15/07/2026", "item": "Twisted Buckler", "kc": 375, "mode": "CM", "who": "Tom", "iso": "2026-07-15"}];
+
+// merge Olmlet / Olmlet Pet as the same drop for display
+DATA.forEach(e => { if(e.item === "Olmlet Pet") e.item = "Olmlet (pet)"; if(e.item === "Olmlet") e.item = "Olmlet (pet)"; });
+
+const dated = DATA.filter(e => e.iso).sort((a,b) => a.iso.localeCompare(b.iso));
+const undatedCount = DATA.length - dated.length;
+
+const GOLD = "#d4af37", GOLD_BRIGHT="#f2ce62", JUNGLE="#4c6b3f", JUNGLE_BRIGHT="#7ba566",
+      BLOOD="#9c3a35", BLOOD_BRIGHT="#d1584f", PARCH="#ece2c6", PARCH_DIM="#c9bd9c", PARCH_FAINT="#8f8467";
+
+Chart.defaults.color = PARCH_DIM;
+Chart.defaults.font.family = "'Inter', sans-serif";
+Chart.defaults.borderColor = "#3a2f2255";
+
+// ---------- hero stats ----------
+const years = dated.length ? (new Date(dated[dated.length-1].iso) - new Date(dated[0].iso)) / (1000*60*60*24*365.25) : 0;
+document.getElementById('span-years').textContent = years.toFixed(1);
+
+const cmItems = dated.filter(e => e.mode === "CM" && e.kc !== null);
+const regItems = dated.filter(e => e.mode === "Regular" && e.kc !== null);
+const cmMaxKc = cmItems.length ? Math.max(...cmItems.map(e=>e.kc)) : 0;
+const regMaxKc = regItems.length ? Math.max(...regItems.map(e=>e.kc)) : 0;
+const uniqueItems = new Set(DATA.map(e=>e.item)).size;
+const tomCount = DATA.filter(e=>e.who==="Tom").length;
+const willCount = DATA.filter(e=>e.who==="Will").length;
+
+const heroStats = [
+  {num: DATA.length, lbl:"Total Purples", cls:"purple"},
+  {num: uniqueItems, lbl:"Unique Items", cls:"jungle"},
+  {num: cmMaxKc + " kc", lbl:"Challenge Mode KC", cls:"blood"},
+  {num: regMaxKc + " kc", lbl:"Regular Chambers KC", cls:""},
+];
+document.getElementById('hero-stats').innerHTML = heroStats.map(s => `
+  <div class="hstat ${s.cls}"><div class="num">${s.num}</div><div class="lbl">${s.lbl}</div></div>
+`).join("");
+
+// ---------- KC cards ----------
+document.getElementById('kc-grid').innerHTML = `
+  <div class="kc-card reg">
+    <div class="kc-mode">Regular Chambers</div>
+    <div class="kc-num">${regMaxKc}<span style="font-size:16px;color:${PARCH_FAINT}"> kc</span></div>
+    <div class="kc-sub">Last logged purple at this count · retired as main grind Jan 2022</div>
+    <div class="kc-bar-track"><div class="kc-bar-fill" style="width:100%"></div></div>
+  </div>
+  <div class="kc-card cm">
+    <div class="kc-mode">Challenge Mode</div>
+    <div class="kc-num">${cmMaxKc}<span style="font-size:16px;color:${PARCH_FAINT}"> kc</span></div>
+    <div class="kc-sub">Current grind · started from 1kc on 16 Jan 2022, still active in 2026</div>
+    <div class="kc-bar-track"><div class="kc-bar-fill" style="width:${Math.min(100, cmMaxKc/regMaxKc*100)}%"></div></div>
+  </div>
+`;
+
+// ---------- player filter + selector wiring ----------
+function matchesPlayer(e, p){
+  if(p === 'tom')  return e.who === 'Tom'  || e.who === 'Tom/Will';
+  if(p === 'will') return e.who === 'Will' || e.who === 'Tom/Will';
+  return true; // both
+}
+function wireSeg(seg, cb){
+  if(!seg) return;
+  seg.querySelectorAll('button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      seg.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      cb(btn.dataset.p);
+    });
+  });
+}
+
+// ---------- timeline chart (cumulative drops, split by mode) ----------
+let timelineChart = null;
+function buildTimeline(player){
+  const src = dated.filter(e => matchesPlayer(e, player));
+  let cmCum = 0, regCum = 0;
+  const labels = [], cmSeries = [], regSeries = [];
+  src.forEach(e => {
+    if (e.mode === "CM") cmCum++; else regCum++;
+    labels.push(e.iso); cmSeries.push(cmCum); regSeries.push(regCum);
+  });
+  if(timelineChart) timelineChart.destroy();
+  timelineChart = new Chart(document.getElementById('timelineChart'), {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: 'Regular',
+          data: regSeries,
+          borderColor: JUNGLE_BRIGHT,
+          backgroundColor: 'rgba(123,165,102,0.08)',
+          borderWidth: 2,
+          pointRadius: 0,
+          fill: true,
+          stepped: 'before',
+        },
+        {
+          label: 'Challenge Mode',
+          data: cmSeries,
+          borderColor: BLOOD_BRIGHT,
+          backgroundColor: 'rgba(209,88,79,0.08)',
+          borderWidth: 2,
+          pointRadius: 0,
+          fill: true,
+          stepped: 'before',
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#1a1510', borderColor: '#3a2f22', borderWidth: 1,
+          titleColor: GOLD_BRIGHT, bodyColor: PARCH,
+        }
+      },
+      scales: {
+        x: { ticks: { maxTicksLimit: 8, color: PARCH_FAINT, font:{size:11} }, grid: { display:false } },
+        y: { ticks: { color: PARCH_FAINT, font:{size:11} }, grid: { color:'#2a211855' }, title:{display:true, text:'Cumulative drops', color:PARCH_FAINT, font:{size:11}} }
+      }
+    }
+  });
+}
+
+// ---------- drought callouts ----------
+function biggestGap(items){
+  const s = items.slice().sort((a,b)=>a.kc-b.kc);
+  let best = null;
+  for(let i=1;i<s.length;i++){
+    const gap = s[i].kc - s[i-1].kc;
+    if(!best || gap > best.gap) best = {gap, from:s[i-1], to:s[i]};
+  }
+  return best;
+}
+const cmDry = biggestGap(cmItems);
+const regDry = biggestGap(regItems);
+
+document.getElementById('dry-grid').innerHTML = `
+  <div class="callout dry">
+    <h4>Longest Challenge Mode drought</h4>
+    <div class="big">${cmDry.gap} kc dry</div>
+    <p>Between <b style="color:${PARCH}">${cmDry.from.item}</b> at ${cmDry.from.kc}kc and <b style="color:${PARCH}">${cmDry.to.item}</b> at ${cmDry.to.kc}kc (${cmDry.to.iso}).</p>
+  </div>
+  <div class="callout dry">
+    <h4>Longest Regular Chambers drought</h4>
+    <div class="big">${regDry.gap} kc dry</div>
+    <p>Between <b style="color:${PARCH}">${regDry.from.item}</b> at ${regDry.from.kc}kc and <b style="color:${PARCH}">${regDry.to.item}</b> at ${regDry.to.kc}kc (${regDry.to.iso}).</p>
+  </div>
+`;
+
+const ICONS = {
+  "kodai insignia": "data:image/webp;base64,UklGRsgBAABXRUJQVlA4TLsBAAAvFgAGEAfjNpIkRcrpubtnDf037jWU+N8OR27bSJLjpHv29Tj/f2HPcaYtx40kScpMVe+9+9oFTMNLvOM3WZr/oP74+RjXyTiTYQrfhuNiWlbpMi6z7tIz65Z0qbJuiUtssZRtXFfdUmWxxVItKSlbbKmubLFUSdnaXdmqpKfc5+v8bT57c9qa5948fkAAFIAEQPEjAARBgAAk/gKAEBAAQOInAAJAQAAEX0CQARDQIAC+Gfz/NtvP9l3SMkxZX0/dtrlfZodFj8VdLLEZIMi2ZUjKtm3btm1j1D2u/e+i8TOX8DOi/wzcNlLkZd6DVwhMgSBbD/aGhKGn2e4NJoTWU642Wt3+eA5BzBZK1Xqr0x/NwJTO5IuV2q1vOF2CMrliudZodweTxQaUeuobz9fgbEzkKvVmpzearfaweLpy6xtOl7sTLJrMNx8mHSkvK+Z1Ws3j+frwApe/YafVqN7i/vwK+/FZDSrZQ6D4smjkMiSIcPr//rxI4TF8CH/Xi4Ty5MEQhjFy/RATAeZDPw/o3kVEoAi6PdymeaP/BwGHE/VqBn63zaRVMfC67AaNkoHDpNNyBR3Hh0BNHAA=",
+  "dexterous prayer scroll": "data:image/webp;base64,UklGRgIBAABXRUJQVlA4TPUAAAAvHQAHEFegoG0bNpV2H98UtG3DtN0HMXyDPhoEAhTlgTH+TzP/AQDMHoNr7Nff2CJMNlkBuLW1t22+f4P/d2IoVal3HCAukNpst6zANvNDqQ7YwJ4TJGaI6P8EIFMF2Xooc8waOtkwc25xG2b0TAVQs+i5+i9A8+e56QVQ67Z+E2aGGoB1GRWgCzNLQMNKz0eyAGBdwnPett8CHJj2A29DLcDb8sRdz/PhcWzPgIYke6ahApScSN6ckyEKlK9kv+eqQD2533G9BKxjZgEoM30BHLZibHNijJUJoNYlNBMAeFta5wozrDdsz0ywraEU5GoU5BtyAQA=",
+  "arcane prayer scroll": "data:image/webp;base64,UklGRhwBAABXRUJQVlA4TBABAAAvHQAHEGdAJmCxk+RaTw0zAZNwQghTG9IUDgNp23QS7vX62/kPBLRMCGrkzvYJjqz8WJ0Aarb/cZvffwPlPlFYsFF4zwHODUKLXBpkCfbWz0VmjVihmwn6dCv7r/8MEf1X4LaNkvEx/AKGOIEp7nFuMRg08VeMLKU6Jcky75mSwg0Gpc7qvQDNvmJKiqhckzL+esIxIz1NAQyemUmYA+6Lhiz6QvHCa3JpFQXPjv8CHLR75VmYCvBT33DzwuL1+q1dA43q0RNngCPfSe4KMniB8w/ky1a52FGR201+Y/s51I2dkfnYccgzX36vOmKWldOBAC7rGPRZ/xzt6bQaDKClCe16INY/+4UAFpXAlgEMAA==",
+  "dinh's bulwark": "data:image/webp;base64,UklGRvYBAABXRUJQVlA4TOoBAAAvGgAHENfBoJEkRZPu3eQNvH9tqIHBBuNGkpyw3Zj5kn96ngw8iiJJau5mCAbwLwgjvHCQ5j/S5HEceqh8ZcQLAj7Qo54iCfUUCRr9V2iKJKhyBimST6VSYSEopEIAVAAtKAAUIgAAAaIAAAgAAACISrbFMHSg/Zi2fTvv476PaUrvvxgk2LadtpVqZoqMshWXG2ZwPf+R/W+5Q3g3ov8TMCqyacynNC+rOkl5wf4g5GWDlDdtyWiWl9SAbFpZA2wGyErSeim65QoAUyPNCpOmb+XPak0EpmaJ9Sl47b7ePvC5WRNTIM0QuzBIkHIBYEsbpmA48Gw3Svk/+fd+N0UaLDvKIiIu2tW1AKNRwXKzRVxEcSZe1wXYqEgvZjb08jMN4rajgo2KpL1k98ez7vIw7mRRqpAGPXYf+G3fU3uQJRtVDM2OXZS1vHF/KCsV0gzLjkv4WRy58VCxcZo0gxzTdv0IXIsWQ61kWHJ7tl2fbB/ZULFxmjSr7A+OF4RxRotBqlBoOAlCLwiTlLedLBUoLESfwAtCpFz8XLuSjVNJ2UC03bKhlIu3a6ECohqNkLWQX1xgBkBVkfCm7X+OAnnBRnWq0lzIeoUT5oEob6t6hTWdL7NAIZKUr7De7g9sDuj/6+2ejX9NRFAE",
+  "elder maul": "data:image/webp;base64,UklGRjoBAABXRUJQVlA4TC4BAAAvHUAHEE/BKJIkRctMJ+GEnf83Y8/oYCVJkqk1n/3u//NOZ6M31DaS1CweMgqj/zbI743mPwQpp/ry5ms5RIWpP6xFjDofQQp433kHyaE4nOucxQxYhXV054pzc/uM+3BifRSr/s9wSBQCXvO95nuFEAiBEPA7RsLr8Dv87v/NMhgGADG2bVXNPkDcFZdnP+T032Hk3ddBRP8nwP3gkawyQ1QaEMW2lpJPJ372sWuTpM0mpZQrfVW/rpfL7b6ILun1JVdpuW5JAU1KpT1LLbcAA/q1VUWYVFVHFAmgFgl30yawzVSFuykS/gm4m8MkHM6+CYfz9DjD4bzfzHE4D58LHM754xYPuH+8HsD3wxUO53x3icM5pgs8QMLxSDgeCcfThON5+sLxvN1cjjDggQ==",
+  "twisted buckler": "data:image/webp;base64,UklGRugBAABXRUJQVlA4TNwBAAAvHcAGEAfCKJIkRbtdfcyn/cQuvs4EG0eS4qDp4YqRv+9HOjMakNtIsp2on0J45B8FeWGJc7ma/wwlPs9hqquhjcHDbnZzayLZDcqPC0qRBGXum6ENu0hFpGXupCAlKR3fyZD/T7u0Q8+nHdL+ayH4VkMNNdTQNvFuhordBvOuH7tNA8PcsAFMA9YJYACgIQDgey8GiLVtK434SfgOZNzd3d37LwsGUsK5Ef2fgL/OolszBeamaqAugEFECOClrCQVA5gaiATwypJm0o4Br0pFd4/YNbToYG4aDIxeJX1Is6gNzL9//nx/LS8tvgxq6tD6+PleXtLiwsuA6T/8bKyvbm3XVX4a4js21te2Nnd2c3oYUgUz/8a6JsDefgwGXCpoNdSVN/OvWtMExjq4DfcGl1Ms/iRqKh/mX7XKZCyNptdHzliXU+ioJG+epy/bK2NpZMg6lXW+S2Q5w1P9uMdIMqSTs14CDI9kHRyODMTTc5XWR9miJWHgQSleX11exHB2fmqsG8L9XeUvL1IM55yY0kZvJ0Ufbm9SDP7s/JcTQ6v46wXHwZ+dnkknhnKYlURP9RDtiJNV+U/pi7/+pCwnq5IWM5EqJ6uSGYgkRQiAl4YJ8HKSFcDfLOlWNw==",
+  "ancestral hat": "data:image/webp;base64,UklGRuYBAABXRUJQVlA4TNkBAAAvHMAGEB/jIJIkRbquXjBy/gWdB4bnn7HhsG0jR9qRfYer5Pqv41r5nOPMOGzbRpJG8v5NXH9XwlW+X3LzH8PguH6UWcWTMk2KZU1sWVE1sWEFDiSNQQRjwDABYQMCqU0TBBMgBAgkAAgBwiEEEBJAIQQQIQSQkAEhCUUTMYBAAoTsMLBDiAGhPh8IKUTITKyASfUKMMVPXXSeyra7Pe+vyOH7be9Xm7evrL+s8u+S1bLbv1pWiS6ZLbpEl8j2y8fvf/n9H//f7Zu37++U2X71inoYIEaybdraz7Zt2+a3/9O3/80/CL+dwT4R/VeYtg2jdL7CyQY4TKAJKF2cIc4UZ2wHjFkYZV2wAsJZI4hxOso4AfGs6iE9HG1+MsyYEWs1LboQlpOSD2ExroQQRlSLq+HY7g/axbjuSNDu91qFuPE4YGP964u7uAWObAfdshuDWqVcQMQ3nV9eGbR8kcJVabF2p9tq1HKxkN/t1ADJdLpQaXf4btar2WQ06Pe4jBqQdK5coWqNUbmYz6Xi4YDP7bSadSDqYqnMd4NVSiKRoN8rlBFIaOFq1muVcrGQSyeioYDP47JbTAYd0OvzYbe5f3jcbHf7w9PL2/vH59f3z+8f+weOABGOAAA=",
+  "ancestral robe top": "data:image/webp;base64,UklGRu4CAABXRUJQVlA4TOECAAAvHYAFEHfkOJIkR9mumUPjBV/8dwAXMEXvbg/CCVeRZLvKObOHnJ2gAIlIQwxfL529bmNblZD3LnxnjNfcLu3VCox3BZz/bOHH28nmuLS4W45ptVuyNnKPrJS7lIVQikIohBIhKiNECoRQAUEhIhBCWRAgRBkEhBQAyIIAQAYBAQyADEIkkAEQwJRABiCBDCAQGAnJSACEAADCSCBLBWEAAcJCi9KyNq6/u75+za3ZY3SxR/nPbvb49+Wjb2WsP30rbTlTQqCvX+Xm0aqHR/No7uHR7FFu06V6zNHsUj3mKPaYXexSPYaL/TO2Zhe7je3H/npOT8v96vzZOj7T9irHV5J31iesT9hesb0kHW5CguT2b25xS1/ELW45vZfL9wISbds2HWmXbSu2bZftdndsW237fnO93FTyCRH9V+S2bSNXgE/dryB9BKSvoDvr6KutTnDYrJ3N9Y0FAD1lC3ZYQ6MTM0sbS3Oj4wPooUSmUPG57J3tzY3V5enJ0SE8qs6g0qhVSj6Xw9phLZSqjw8YLE6fTtspSjFvM1usLC3MjaFLp8Xm3jXpH2CGmJXKFEpbO6y5KdC4HHbPntNm1jPw4sl0rsDm8TZXF0Dx2uXwHPjcVpNeo4pEE6lsXiQV8kq0/9+8dDiP9r12i1HAD0diyUxOoUimyzSvggG///jQ57SJRaJQOJpI555H48kijT8SjsRwdftEJhUHQ+FwPF2GPxrPNNHh269kOouLa5Vc6g8EQ5FkrgH8+/q7zYDvP/++f9cGLjUKpkdjiVy5yfjzz9sWCJKZfKnaGMS5zt8hzjCIWCKdLddAEImnssVKHWZ9KML0ZCpfGUA4mkjlCyXArNfIBKwNmPw06UJtAGa9Wi7igRDg9PL+GWAMUKTSxfoAcHJ2/YSe6oKRYO3D4o/Z2ZnpqbHhIRCc3r2gOb19DoKVj4vf5h+YmZ4Yobh5Sj8//UPx6fMXdIXeTO/vTnqGAAA=",
+  "ancestral robe bottom": "data:image/webp;base64,UklGRqQBAABXRUJQVlA4TJgBAAAvDkAHEE/CIJIkJ7+zT04u8G+LQkFcbLBt20jSWp5o7ynj+i/rwosP61m2bSQJ0c3uE0I79B/SBTkV/D978x9l1P25jfNSMRlgtjU+yACzRIYxIdUDBhLXgESIgQQBS4T01wvEZQAAoJaBiAIAIAAAooBIgAIASAUAkOASBIHtPp3f48nvW1vSsiMdSft3pFsS6bj+KWnv+iWR/iUtHV//kna8H0CQbTtt88KMgjAzM8cKyW7z978jyZ0uIaL/E0BEBF+yopjPZTPpWBgGDqwkBSskogEYR1aSvPjOpoOWEy8JXnynUrazYIIV3+nkHyRnbx0zcDoLVpL8rRMh43yWvFQSb52KGheL/OhU3LheJC+Wy59PKmHcrmfBymX9SSUiMOS/hS2C+3yNi+CM9fTH+/0Czu1q9LV2f0A+aqBdzzPuV845etr1QLa7g6brgWx3R+HoqScsd0cpbzMfvgzlOKpXwWrctqnHZtLGdtqpGo/HfjuqYztt27AbN4BZtwYiImA9qgFTHyIsWsB22vFbDgyQL0AEkAk=",
+  "dragon claws": "data:image/webp;base64,UklGRnABAABXRUJQVlA4TGQBAAAvHkAGEAehsG3bFjO7RdC2baOXkrY/iCts2yjyvcD+AzP/4UT/8/gXw+iiD+kgCEKLwFZASAohoGwAlACQog0kwGEkW21zWEZZBIGS8+u/TCdKiOj/BOhfPqo4VTdMjaEUXduPzhsowzROKYY4Z0MZt7k5hvZ6Wzv4DUD4LcXgvdkf+2z4BtimqSBclpjWw9v1dXXfCG7q2r49G9i8Yb+Eln3r+RKd64dxGM+wHqllucfOPJdPLJPz0+Tc0Jxhu2/R5DVYbokPc9sl54MfaiS2+zqRH/7EJSCx+arOY09okSS4po58dbC+5bGqUw9j9UHiiJa8j9ze5vZMapm7b2L3BhbDCa6zhVgTG/Sd3cM9McIlWfB2D/UvYvVwDYgjWdLE4tHPZERG7NkSB9bpDxFhQxyLPXzHNvwjHEhcV/LUMPd/CUnishGHGofKchy4ljQUW2GwhK5YghY8KhXAwlRMSEioNA==",
+  "dragon hunter crossbow": "data:image/webp;base64,UklGRnACAABXRUJQVlA4TGMCAAAvHQAHEAfkKADbNook314IDsLBOvT33COWaDiOJMlRerp30PKLDdiE/8FP6+lxHclu2xwAORXjtlyQ2/RnDsBx/mMgng/LZobTBqvEkhjCMk9qgsXAYmAxsBioxEKosZFQiRJKKKEGJJQ2EvTF74ftHhJWE0gYeRUgrbRs2QqQXmwFiBUvbtkjvQSIFcCWrQCxYrmX+f+zZastW7YCpGUPlwL0v7VHl2a1/++na8xfMzCWkspisrOeH93ON+Me2nI1LNFW/0fX6BpdI4/ln3/z31ya33a/330uH5fj2fV0AQYwEYA2BEAwElQAkAkMjAQGKomJKmCQChkQAQyIhAgABhOAyoIIUqEKIqxme4Ag27bpaMdJ27Zt27Zt29YZ+1dnBhH9nwD9OyicFFYQBq6LKhsw4V/OS6qa2pAgBmd8HpdWN7f3wNR0nBccve2V17YMryFI9GytAnb4ecqv6BjdXUMi0QNsrIAFX3cnRV1jcyCJBC8SsI6QxPNFQXPfCMhIoh8ZEauI/c76vgGQOUkBM0mIj4KhWZA1qRE2xM1B7wiyS2aMDV6uagaRveyEAMLA7WFFOw5EaiysIHF7WtQCyzjISYk3cH1YVI+EHJKdmrQEx6WtIEk4ycjOXOhpb54FSWIJeyL9d6a2dWtzZhNJwtH3/dHExMTk+rbZMg7eH4rLxv1+kMmiPd4ezxv7A6GIkJmwxd/zZW63LyIqOjoSsyWseP24yK0GYuLi42IwXbDzfVa3gyRISkqIi09MTsvKcYGZOJhHppCSlJCYmJSUvBl0Y5GHrLFcXUeWyDkrKKzIFAA=",
+  "twisted kit": "data:image/webp;base64,UklGRpYBAABXRUJQVlA4TIkBAAAvG4AGEK/BKJIkRRfVc8z4Pv+2TgEz2GDbSJKi0/Y+mwwu558XM0lsG0lSNDPPzGB9/gl8SO8zg+Y/HMNlnGrDSlfC94fq9Cc1mRAqIAahIkgIGCQkBAhEEJBEQBARhBAIQkAICcN/db7VcVyX/fP81mDbDv/bGufRPKSu53Lfh7zv9f/CgMAGU4g8k29D5EESmIbK4Ly1fX8ZIEaybdp6ts1vmy//3N4+954QZiL6r8BtGyXDY3zFKZUKYJ4AdZXsmgWQQVKTywKgCizKixBqApRBW1vaBHLoaDs2VSmn14VO6JrRQN8esSmjgYF9QxNVKGWog9iUMSkj4HJ4OdB0UhKRyZhL9VGrscjL28fn++s/FaY+cnkHkPL39f1T88yMXx+e9Nlq0sA11DwX5rfO7p71nmkargInWS5uFg1gfjNLkKuE1VJdFP8BrrR2VtasVJdqNYRCNrAOsjLcK6cituomSsgsZL9T3apC0VcPHNgH2WnJG6Ic4RBkb/kX5kL1GOSQoYViCQIA",
+  "twisted ancestral kit": "data:image/webp;base64,UklGRpYBAABXRUJQVlA4TIkBAAAvG4AGEK/BKJIkRRfVc8z4Pv+2TgEz2GDbSJKi0/Y+mwwu558XM0lsG0lSNDPPzGB9/gl8SO8zg+Y/HMNlnGrDSlfC94fq9Cc1mRAqIAahIkgIGCQkBAhEEJBEQBARhBAIQkAICcN/db7VcVyX/fP81mDbDv/bGufRPKSu53Lfh7zv9f/CgMAGU4g8k29D5EESmIbK4Ly1fX8ZIEaybdp6ts1vmy//3N4+954QZiL6r8BtGyXDY3zFKZUKYJ4AdZXsmgWQQVKTywKgCizKixBqApRBW1vaBHLoaDs2VSmn14VO6JrRQN8esSmjgYF9QxNVKGWog9iUMSkj4HJ4OdB0UhKRyZhL9VGrscjL28fn++s/FaY+cnkHkPL39f1T88yMXx+e9Nlq0sA11DwX5rfO7p71nmkargInWS5uFg1gfjNLkKuE1VJdFP8BrrR2VtasVJdqNYRCNrAOsjLcK6cituomSsgsZL9T3apC0VcPHNgH2WnJG6Ic4RBkb/kX5kL1GOSQoYViCQIA",
+  "metamorphic dust": "data:image/webp;base64,UklGRtgBAABXRUJQVlA4TMwBAAAvHEAFEI/CuG0bSRN7r9dWtv2Xcq+VNhw1kuRInTV39/csjj+2dVlsI0lyUjevsMiM/DPAIwA5O/8xph7Pw37beXXzdFs2ns6r4X9ZH9N2X0zjQIGAAgMHFRgoEI0ptWAgoEAUBwUMKsU0ApVioEAUgUoRMKhAQJTn9/i3GwaKikYbqVrRQKGYwGiVqhUVBiqNnJ9UrahioP7rc223d07f8UHl0q/wlyvO7QEJtm2rbXPCzDEzKfoKg1gKlsN3/rMR1TOI6P8EqDyaJ4vMgeR7Dvy6eZxHeusVAFTgt3fnh2R4SkOXCqHvBkGGlzR0x+VIosALvRCJx9CdzMYUwUMah354d70Nz4l7bdnWLnksHz3eJ1EQvp2H/HwIri3HMbMcWN8/PK43Wu3OxNx4/h/yJYmNrZ29vN7UmJvbO9dDhWzu7u4dZDoDy5iLy6vRoE/RzsH+weFxrdnujmxjzMlsMhoOyBPHRyuvtVqz05sYx3FsazoBCSTY3OWTWq3RGUxs5/TUsS0ksbQAf3+k7g6iVm/3x5btnAHKLC7CczxcGyBRa/VGU4tPJImsBPAPSeQKSWJ5+evrC0niNSM+3ldRPlnlIkl8vIP+P6gy",
+  "olmlet (pet)": "data:image/webp;base64,UklGRngCAABXRUJQVlA4TGwCAAAvGkAHEI/joG0kSRpsxx/Q7l53fA8JR20kSVJ9B9LyB3VWORi0bSSph+3449lvmsx/Gc58d4ckFSQkIUkqIEkqoUMFCRUkCUUnFZBUIIAJCQmSCSAhE+ifBCRFJg6UkAnhUBMHpAjNFeiqsOKo67PNlRAEpdmxV3vDxOwITMz/mX3u3xXczxJEHVYFQYdUEO1WsFfBqr1yeH7P87ue37VXs+N5X7NjdrxePwMs27ZNRzv2Y+xKXsq2bdu2cfv/F7xqwr4R/Z8A0ShIYR+swhsJW3i8hyAJ+fIPN3yHIIknCTvE5fUXqp5fJG3Ji6sfCOLl6fkfHs4vP8Dv/pasvdfH25Ozi6O5/paiLeLp/uQsolt9nZUF2Pp9ujsNKIbVUem1RXw/3HlDWsyScgW0s96RiiWSqUSm3Nk/goawLJs6Z8ojnYVoPGe1NYQlKUe7mkqHB2lV5ooWWA9z1cNtOaO5vXu8Z35/Zxq1MDMshzg7PTaYSxgla2zv+C/fglqT/a1ycGJ28WB7Q1FJDgUdhoUaIz1WdnD28e7yRFmPSJkwpN/MtUEQ0wMdby+P93fXZ3d6cC0sTSoBJVmuGu+VqewXPz/u5V0mvCpVMqiYuV0IDLTm0izIlp6xudGWrLqyJuXqxuYWBKY6i4l0Jp0pd/SPg4N53e1yOvxKFAJjLekE47FkvtIBQbC1kNCcvogJgWErZhq6Fo0X9yBIgiM5p0/LLIP9xaihRkJKsgRRG3SGE2UI9OSiuur1RBINENFMuRMCnWlT93u8kXixkda+QwqiNWEGfW6pxAqNzICCJBgOeF1+NZ5vgBB1UVfYBg==",
+  "twisted bow": "data:image/webp;base64,UklGRngBAABXRUJQVlA4TGsBAAAvHEAHEM/BNpIkJ/zu3j2WVvnnBjb2S9Jg2LZtJNd2M0Dv23+uG+BuhiQFmESSJKn6mRi6S0/W+ZeyYP5jgK7XEeeyGOYhl1yKgkwuKqigwoCuGBXdQZoBVUYFGQ6AlgEqQHPgjwINDM0yD8imGNu65NrPK8byWPfzCUPCMMq+9/f+T0o831M36kYttI3aT9mohdIojdIAxEaSFEm5cMzMzHd9zzBf/pv20vR6ENH/CVCBIHegUscJkvqI3Im/UB2QJD6IpIZAnrzCYIV8eTP2w50T7wbH6WqLBx8Gk9NhuvTg0xDnKwMPvgxJkLdRNN+GhKAxjePHkLhQHq1RLL+G4FArjUCxBENkea/bbaJYgiGSNMsBxRIMiXQNiicYksiQI8GQEFMPgiF4UE9eiCIYYnGn1yuVowiGGN+obABFvQDc0nSA4nmHVqdfrjSmLs807w7nve4IxZMkjTX/ymMGyJ0RKpBGSgECFQgA",
+};
+function iconFor(name){ const k=name.toLowerCase().trim(); return ICONS[k] || ICONS[k.replace(" (pet)","")] || ""; }
+function nameCell(name){ const ic=iconFor(name); return `<span class="item-cell">${ic?`<img class="loot-ico" src="${ic}" alt="">`:`<span class="loot-ico loot-ico-blank"></span>`}${name}</span>`; }
+// ---------- item table ----------
+const itemCounts = {};
+DATA.forEach(e => { itemCounts[e.item] = (itemCounts[e.item]||0) + 1; });
+const sortedItems = Object.entries(itemCounts).sort((a,b)=>b[1]-a[1]);
+const maxCount = sortedItems[0][1];
+document.querySelector('#item-table tbody').innerHTML = sortedItems.map(([item,count]) => `
+  <tr>
+    <td class="item-name">${nameCell(item)}</td>
+    <td class="bar-cell"><div class="mini-bar-track"><div class="mini-bar-fill" style="width:${count/maxCount*100}%"></div></div></td>
+    <td style="text-align:right" class="count-num">${count}</td>
+  </tr>
+`).join("");
+
+// ---------- mode donut ----------
+const modeCounts = {CM:0, Regular:0};
+DATA.forEach(e => modeCounts[e.mode]++);
+new Chart(document.getElementById('modeChart'), {
+  type: 'doughnut',
+  data: {
+    labels: ['Challenge Mode','Regular'],
+    datasets: [{ data:[modeCounts.CM, modeCounts.Regular], backgroundColor:[BLOOD_BRIGHT, JUNGLE_BRIGHT], borderColor:'#1a1510', borderWidth:3 }]
+  },
+  options: {
+    responsive:true,
+    cutout:'68%',
+    plugins:{ legend:{display:false}, tooltip:{backgroundColor:'#1a1510', borderColor:'#3a2f22', borderWidth:1, titleColor:GOLD_BRIGHT, bodyColor:PARCH} }
+  }
+});
+document.getElementById('mode-legend').innerHTML = `
+  <span class="legend-item"><span class="dot" style="background:${BLOOD_BRIGHT}"></span>Challenge Mode — ${modeCounts.CM} (${(modeCounts.CM/DATA.length*100).toFixed(0)}%)</span>
+  <span class="legend-item"><span class="dot" style="background:${JUNGLE_BRIGHT}"></span>Regular — ${modeCounts.Regular} (${(modeCounts.Regular/DATA.length*100).toFixed(0)}%)</span>
+`;
+
+// ---------- who donut ----------
+const whoCounts = {Tom:0, Will:0, Shared:0, Aaron:0, Unknown:0};
+DATA.forEach(e => {
+  if(e.who === "Tom") whoCounts.Tom++;
+  else if(e.who === "Will") whoCounts.Will++;
+  else if(e.who === "Tom/Will") whoCounts.Shared++;
+  else if(e.who) whoCounts.Aaron++;
+  else whoCounts.Unknown++;
+});
+const SHARED_COL = '#c9bd9c';
+new Chart(document.getElementById('whoChart'), {
+  type: 'doughnut',
+  data: {
+    labels: ['Tom','Will','Tom or Will (shared)','Aaron','Unknown'],
+    datasets: [{ data:[whoCounts.Tom, whoCounts.Will, whoCounts.Shared, whoCounts.Aaron, whoCounts.Unknown], backgroundColor:[GOLD_BRIGHT, JUNGLE_BRIGHT, SHARED_COL, BLOOD_BRIGHT, '#3a2f22'], borderColor:'#1a1510', borderWidth:3 }]
+  },
+  options: {
+    responsive:true,
+    cutout:'68%',
+    plugins:{ legend:{display:false}, tooltip:{backgroundColor:'#1a1510', borderColor:'#3a2f22', borderWidth:1, titleColor:GOLD_BRIGHT, bodyColor:PARCH} }
+  }
+});
+document.getElementById('who-legend').innerHTML = `
+  <span class="legend-item"><span class="dot" style="background:${GOLD_BRIGHT}"></span>Tom — ${whoCounts.Tom}</span>
+  <span class="legend-item"><span class="dot" style="background:${JUNGLE_BRIGHT}"></span>Will — ${whoCounts.Will}</span>
+  <span class="legend-item"><span class="dot" style="background:${SHARED_COL}"></span>Shared — ${whoCounts.Shared}</span>
+  <span class="legend-item"><span class="dot" style="background:${BLOOD_BRIGHT}"></span>Aaron — ${whoCounts.Aaron}</span>
+  <span class="legend-item"><span class="dot" style="background:#3a2f22"></span>Unknown — ${whoCounts.Unknown}</span>
+`;
+
+// ---------- year chart ----------
+const allYears = [...new Set(dated.map(e => e.iso.slice(0,4)))].sort();
+const YEAR_COL = { both: GOLD, tom: GOLD_BRIGHT, will: JUNGLE_BRIGHT };
+let yearChart = null;
+function buildYear(player){
+  const counts = {};
+  dated.filter(e => matchesPlayer(e, player)).forEach(e => {
+    const y = e.iso.slice(0,4); counts[y] = (counts[y]||0)+1;
+  });
+  if(yearChart) yearChart.destroy();
+  yearChart = new Chart(document.getElementById('yearChart'), {
+    type: 'bar',
+    data: {
+      labels: allYears,
+      datasets: [{ data: allYears.map(y => counts[y]||0), backgroundColor: YEAR_COL[player]||GOLD, borderRadius: 4, maxBarThickness: 60 }]
+    },
+    options: {
+      responsive:true,
+      plugins:{ legend:{display:false}, tooltip:{backgroundColor:'#1a1510', borderColor:'#3a2f22', borderWidth:1, titleColor:GOLD_BRIGHT, bodyColor:PARCH} },
+      scales:{
+        x:{ grid:{display:false}, ticks:{color:PARCH_FAINT} },
+        y:{ grid:{color:'#2a211855'}, ticks:{color:PARCH_FAINT, stepSize:5}, beginAtZero:true }
+      }
+    }
+  });
+}
+
+// ---------- loot by raider (from collection logs) ----------
+const COLLECTION = [
+  ["Arcane prayer scroll",18,11],
+  ["Dexterous prayer scroll",11,13],
+  ["Twisted buckler",5,4],
+  ["Twisted ancestral kit",6,6],
+  ["Kodai insignia",2,2],
+  ["Dinh's bulwark",2,2],
+  ["Dragon claws",2,1],
+  ["Ancestral hat",1,2],
+  ["Ancestral robe top",2,0],
+  ["Ancestral robe bottom",1,2],
+  ["Dragon hunter crossbow",2,1],
+  ["Elder maul",0,2],
+  ["Metamorphic dust",1,0],
+  ["Olmlet (pet)",1,1],
+  ["Twisted bow",1,1],
+];
+const rMax = Math.max(...COLLECTION.map(r => Math.max(r[1], r[2])));
+const tomTot = COLLECTION.reduce((a,r)=>a+r[1],0);
+const willTot = COLLECTION.reduce((a,r)=>a+r[2],0);
+function totCard(name,val,col){
+  return `<div style="flex:1;min-width:150px;background:var(--stone-900);border:1px solid var(--stone-700);border-radius:10px;padding:16px 20px;display:flex;align-items:baseline;gap:12px;">
+    <div style="font-family:'Cinzel',serif;font-weight:700;font-size:19px;color:${col}">${name}</div>
+    <div style="font-family:'Cinzel',serif;font-weight:900;font-size:30px;color:${col};line-height:1">${val}</div>
+    <div style="font-size:10.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--parchment-faint)">lifetime uniques</div>
+  </div>`;
+}
+document.getElementById('raider-tot').innerHTML = totCard('Tom',tomTot,GOLD_BRIGHT) + totCard('Will',willTot,JUNGLE_BRIGHT);
+document.querySelector('#raider-table tbody').innerHTML = COLLECTION.map(([item,t,w]) => `
+  <tr>
+    <td class="item-name">${nameCell(item)}</td>
+    <td class="bar-cell"><div class="mini-bar-track"><div class="mini-bar-fill" style="width:${t/rMax*100}%;background:linear-gradient(90deg,var(--gold-dim),var(--gold-bright))"></div></div></td>
+    <td style="text-align:right" class="count-num">${t}</td>
+    <td class="bar-cell"><div class="mini-bar-track"><div class="mini-bar-fill" style="width:${w/rMax*100}%;background:linear-gradient(90deg,var(--jungle),var(--jungle-bright))"></div></div></td>
+    <td style="text-align:right;font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--jungle-bright)">${w}</td>
+  </tr>
+`).join("");
+
+// ---------- feed ----------
+const recent = dated.slice(-12).reverse();
+document.getElementById('feed').innerHTML = recent.map(e => `
+  <div class="feed-row">
+    <div class="feed-date">${e.iso}</div>
+    <div class="feed-item">${iconFor(e.item)?`<img class="loot-ico" src="${iconFor(e.item)}" alt="">`:''}${e.item}</div>
+    ${e.who ? `<div class="feed-who ${e.who==='Tom'?'tom':e.who==='Will'?'will':''}">${e.who}</div>` : '<div></div>'}
+    <div class="feed-mode ${e.mode==='CM'?'cm':'reg'}">${e.mode}</div>
+  </div>
+`).join("");
+
+// ---------- loot value (live GE prices, oldschool.runescape.wiki) ----------
+const PRICES = {
+  "Twisted Bow": 1394300495,
+  "Ancestral Robe Top": 101947705,
+  "Elder Maul": 100020727,
+  "Ancestral Robe Bottom": 70926970,
+  "Kodai Insignia": 53167483,
+  "Ancestral Hat": 42906453,
+  "Dragon Claws": 41073880,
+  "Dragon Hunter Crossbow": 31709139,
+  "Dexterous Prayer Scroll": 19338270,
+  "Twisted Buckler": 14251304,
+  "Dinh's Bulwark": 12697537,
+  "Arcane Prayer Scroll": 5907922,
+  "Twisted Kit": null,       // Twisted ancestral colour kit — untradeable
+  "Metamorphic Dust": null,  // untradeable
+  "Olmlet (pet)": null,      // untradeable pet
+};
+const PRICE_ASOF = "2 Aug 2026";
+function fmtGp(n){
+  if(n >= 1e9) return (n/1e9).toFixed(2).replace(/\.?0+$/,'') + "B";
+  if(n >= 1e6) return (n/1e6).toFixed(0) + "M";
+  if(n >= 1e3) return (n/1e3).toFixed(0) + "K";
+  return String(n);
+}
+const fmtFull = n => n.toLocaleString('en-GB');
+function buildValue(player){
+  const src = DATA.filter(e => matchesPlayer(e, player));
+  const counts = {};
+  src.forEach(e => { counts[e.item] = (counts[e.item]||0)+1; });
+  let total = 0, tradeableDrops = 0, untradeableDrops = 0;
+  Object.entries(counts).forEach(([item, ct]) => {
+    if(typeof PRICES[item] === 'number') { tradeableDrops += ct; total += PRICES[item]*ct; }
+    else untradeableDrops += ct;
+  });
+  const rows = Object.entries(counts)
+    .filter(([item]) => typeof PRICES[item] === 'number')
+    .map(([item, ct]) => ({ item, ct, price: PRICES[item], val: PRICES[item]*ct }))
+    .sort((a,b) => b.val - a.val || b.ct - a.ct);
+
+  document.getElementById('value-total').textContent = fmtGp(total) + " gp";
+  document.getElementById('value-total-gp').textContent = fmtFull(total) + " gp";
+  const dropWord = tradeableDrops === 1 ? 'drop' : 'drops';
+  document.getElementById('value-meta').innerHTML =
+    `Across <b>${tradeableDrops}</b> tradeable ${dropWord}` +
+    (untradeableDrops ? ` (${untradeableDrops} untradeable drops — pet, dust &amp; colour kits — carry no GE value and are left out)` : '') +
+    `. Prices from the <b>oldschool.runescape.wiki</b> live Grand Exchange, as of <b>${PRICE_ASOF}</b>.`;
+
+  document.querySelector('#value-table tbody').innerHTML = rows.map(r => `
+    <tr>
+      <td class="item-name">${nameCell(r.item)}</td>
+      <td class="val-unit">${fmtFull(r.price)}</td>
+      <td class="val-ct">${r.ct}</td>
+      <td class="val-num">${fmtFull(r.val)}</td>
+    </tr>
+  `).join("");
+}
+
+// ---------- initial render + selector wiring ----------
+buildTimeline('both');
+buildYear('both');
+buildValue('both');
+wireSeg(document.getElementById('seg-timeline'), buildTimeline);
+wireSeg(document.getElementById('seg-year'), buildYear);
+wireSeg(document.getElementById('seg-value'), buildValue);
+}
+if (window.Chart) { initDashboard(); } else { window.addEventListener('load', initDashboard); }
+</script>
+</body>
+</html>

@@ -12,15 +12,13 @@ A drop log + single-page dashboard for **Chambers of Xeric** (Great Olm) purples
 
 | Path | Role |
 |------|------|
-| `index.html` | The dashboard. **Self-contained and generated** — fonts, Chart.js, and item icons are all inlined as base64 `data:` URIs. ~400 KB. Do not hand-edit the inlined blobs. |
-| `cox-drop-log.txt` | Raw data: a single fixed-width text table, one row per purple. This is the source of truth for the drops. |
-| `assets/icons/*.webp` | Item sprites (also inlined into `index.html`; the folder is the original source). |
+| `src/dashboard_src.html` | **The editable source.** CDN-based (small, easy to edit). Make all dashboard changes here, then run the build. |
+| `src/vendor/` | Build inputs inlined by the build: `fonts_inline.css`, `chart.umd.min.js`, `favicon_line.txt` (Olmlet favicon data-URI). |
+| `build.ps1` | Inlines the vendor assets into `src/dashboard_src.html` to produce `index.html`. |
+| `index.html` | **Generated — do not hand-edit.** Self-contained (fonts, Chart.js, item icons all inlined as base64 `data:` URIs), ~400 KB. |
+| `cox-drop-log.txt` | Raw data: a single fixed-width text table, one row per purple. Source of truth for the drops. |
+| `assets/icons/*.webp` | Item sprites (also inlined into `src` as `ICONS`; this folder is the original source). |
 | `README.md` | Human-facing project overview. |
-
-> The **editable dashboard source** is a CDN-based HTML file (`dashboard_src.html`) that was kept in
-> a scratchpad during development, **not committed**. `index.html` is built from it by inlining assets
-> (see Build). If you need to make structural changes and the source isn't available, reconstruct it
-> from `index.html` or ask the user for it — then commit it so future edits are reproducible.
 
 ## Data model (`cox-drop-log.txt`)
 
@@ -74,23 +72,33 @@ To add another filterable chart: add a `.chart-head` with a `.seg` in the HTML, 
 
 Sourced from the wiki's **Ancient chest unique drop table**
 (https://oldschool.runescape.wiki/w/Ancient_chest). Untradeable in this log: **Twisted ancestral
-colour kit** ("Twisted Kit"), **Metamorphic dust**, **Olmlet** — no GE value, counted separately.
+colour kit** ("Twisted Kit"), **Metamorphic dust**, **Olmlet** — they have `null` in `PRICES`, are
+**left out of the value table**, and are only mentioned as a count in the section's note line.
 When refreshing prices, update the `PRICES` map and `PRICE_ASOF` together.
 
 ## Build
 
-`index.html` is produced from the CDN-based source by inlining:
-1. Replace the Google Fonts `<link>`s with an inlined `@font-face` block (`fonts_inline.css`, latin
-   woff2 subsets as data URIs).
-2. Replace the Chart.js `<script src=…cdn…>` with the library inlined in a `<script>` tag.
-3. Item icons are already inlined in `ICONS`.
+Edit `src/dashboard_src.html`, then regenerate `index.html`:
 
-Two output flavours share the same body/CSS/JS:
-- **`index.html`** — a full standalone document (`<!doctype>`…`<head>` with viewport + Olmlet favicon
-  data-URI…`<body>`). This is what GitHub Pages serves.
-- A **Claude artifact** flavour (no `<!doctype>/<html>/<head>/<body>` wrappers — the harness adds them;
-  favicon is emoji-only). **The user has asked to stop maintaining the Claude artifact — only keep
-  `index.html` current.**
+```
+pwsh ./build.ps1          # or:  powershell -ExecutionPolicy Bypass -File build.ps1
+```
+
+The script (from its header): pulls the `<style>` CSS and `<body>` out of the source, inlines
+`fonts_inline.css` (in place of the Google Fonts `<link>`s) and `chart.umd.min.js` (in place of the
+Chart.js CDN `<script>`), wraps it in a standalone `<!doctype>` document with a viewport meta and the
+Olmlet favicon, and writes `index.html`. It prints byte count and a mojibake check (fails if > 0).
+
+> **Encoding gotcha (important).** `src/dashboard_src.html` is UTF-8 and contains em-dashes (`—`) and
+> non-breaking spaces. Windows PowerShell 5.1's `Get-Content -Raw` decodes BOM-less files as the ANSI
+> codepage, corrupting those into mojibake (`Â`, `â€"`) baked into the output. `build.ps1` therefore
+> reads via `[System.IO.File]::ReadAllText(path, UTF8)` and **keeps itself pure-ASCII** (it emits the
+> em-dash in the `<title>` via `[char]0x2014`) — because a BOM-less `.ps1` with Unicode literals would
+> hit the same ANSI misread and fail to parse. Preserve both when editing the script.
+
+**Only `index.html` is maintained.** A Claude-artifact flavour existed earlier (no
+`<!doctype>/<html>/<head>/<body>` wrappers; emoji-only favicon) but the user has asked to stop
+updating it — build and ship only `index.html`.
 
 ## Verifying locally
 
