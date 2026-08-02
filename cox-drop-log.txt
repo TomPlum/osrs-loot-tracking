@@ -1,0 +1,96 @@
+Date        Item                      KC  Mode     Player    Notes
+----------  -----------------------  ---  -------  --------  -----
+??/??/2020  Kodai Insignia             ?  Regular  Tom/Will
+??/??/2020  Dexterous Prayer Scroll    ?  Regular  Tom/Will
+??/??/2020  Dinh's Bulwark             ?  Regular  Tom/Will
+??/??/2020  Dexterous Prayer Scroll    ?  Regular  Tom/Will
+??/??/2020  Dexterous Prayer Scroll    ?  Regular  Tom/Will
+??/??/2020  Elder Maul                 ?  Regular
+20/08/2020  Arcane Prayer Scroll     255  Regular  Tom/Will
+13/09/2020  Ancestral Hat            253  Regular  Tom/Will
+17/09/2020  Arcane Prayer Scroll     258  Regular  Tom/Will
+24/09/2020  Dragon Claws             266  Regular  Tom/Will
+16/10/2020  Dexterous Prayer Scroll  296  Regular  Tom/Will
+31/10/2020  Dexterous Prayer Scroll  323  Regular  Tom/Will
+02/11/2020  Elder Maul               326  Regular
+16/11/2020  Arcane Prayer Scroll     355  Regular  Tom/Will
+26/11/2020  Twisted Buckler          372  Regular  Tom/Will
+30/11/2020  Dexterous Prayer Scroll  382  Regular  Tom/Will
+26/12/2020  Kodai Insignia           404  Regular  Tom/Will
+24/01/2021  Arcane Prayer Scroll     406  Regular  Tom/Will
+01/10/2021  Dexterous Prayer Scroll  410  Regular  Tom/Will
+11/12/2021  Kodai Insignia           418  Regular  Tom/Will
+12/12/2021  Arcane Prayer Scroll     420  Regular  Tom/Will
+24/12/2021  Ancestral Robe Bottom    421  Regular  Will
+16/01/2022  Arcane Prayer Scroll       1  CM       Tom/Will
+23/01/2022  Arcane Prayer Scroll       5  CM       Tom/Will
+26/02/2022  Arcane Prayer Scroll     440  Regular  Tom/Will
+26/02/2022  Dexterous Prayer Scroll  441  Regular  Tom/Will
+04/03/2022  Kodai Insignia           452  Regular  Tom/Will
+05/03/2022  Ancestral Robe Top       455  Regular  Tom
+12/03/2022  Dexterous Prayer Scroll   14  CM       Tom/Will
+18/03/2022  Arcane Prayer Scroll      21  CM       Tom/Will
+18/03/2022  Arcane Prayer Scroll      22  CM       Tom/Will
+20/03/2022  Dexterous Prayer Scroll   25  CM       Tom/Will
+22/03/2022  Twisted Kit               27  CM       Will
+26/03/2022  Dexterous Prayer Scroll   30  CM       Tom/Will
+26/03/2022  Dexterous Prayer Scroll   31  CM       Tom/Will
+28/03/2022  Dexterous Prayer Scroll   35  CM       Tom/Will
+28/03/2022  Twisted Kit               35  CM       Will
+04/04/2022  Dragon Hunter Crossbow    48  CM       Tom/Will
+08/04/2022  Arcane Prayer Scroll      52  CM       Tom/Will
+08/04/2022  Olmlet                    52  CM       Tom
+09/04/2022  Elder Maul                53  CM
+10/04/2022  Ancestral Robe Bottom     57  CM       Will
+18/04/2022  Twisted Kit               72  CM       Will
+22/04/2022  Twisted Buckler           77  CM       Tom/Will
+24/04/2022  Twisted Buckler           80  CM       Tom/Will
+07/05/2022  Arcane Prayer Scroll     102  CM       Tom/Will
+07/05/2022  Dexterous Prayer Scroll  104  CM       Tom/Will
+08/05/2022  Arcane Prayer Scroll     105  CM       Tom/Will
+13/05/2022  Arcane Prayer Scroll     112  CM       Tom/Will
+23/05/2022  Twisted Buckler          126  CM       Tom/Will
+28/05/2022  Dexterous Prayer Scroll  131  CM       Tom/Will
+31/05/2022  Dexterous Prayer Scroll  141  CM       Tom/Will
+01/06/2022  Dinh's Bulwark           142  CM       Tom/Will
+04/06/2022  Dexterous Prayer Scroll  147  CM       Tom/Will
+19/06/2022  Arcane Prayer Scroll     163  CM       Tom/Will
+25/06/2022  Twisted Bow              165  CM       Will
+29/06/2022  Twisted Kit              169  CM       Tom
+30/06/2022  Twisted Buckler          170  CM       Tom/Will
+17/07/2022  Twisted Kit              182  CM       Tom
+01/08/2022  Arcane Prayer Scroll     203  CM       Tom/Will
+01/08/2022  Arcane Prayer Scroll     205  CM       Tom/Will
+05/08/2022  Dexterous Prayer Scroll  212  CM       Tom/Will
+12/08/2022  Ancestral Hat            220  CM       Tom/Will
+12/08/2022  Twisted Kit              220  CM       Tom/Will
+13/08/2022  Dexterous Prayer Scroll  221  CM       Tom/Will
+17/08/2022  Dexterous Prayer Scroll  225  CM       Tom/Will
+28/12/2022  Arcane Prayer Scroll     239  CM       Tom/Will
+30/12/2022  Twisted Buckler          244  CM       Tom/Will
+30/12/2022  Olmlet                   244  CM       Will
+30/12/2022  Dexterous Prayer Scroll  245  CM       Tom/Will
+31/12/2022  Twisted Buckler          246  CM       Tom/Will
+03/02/2023  Dexterous Prayer Scroll  260  CM       Tom/Will
+05/02/2023  Dragon Claws             264  CM       Tom/Will
+12/02/2023  Dexterous Prayer Scroll  265  CM       Tom/Will
+18/02/2023  Arcane Prayer Scroll     266  CM       Tom/Will
+26/02/2023  Ancestral Robe Top       271  CM       Tom
+19/03/2023  Arcane Prayer Scroll     279  CM       Tom/Will
+03/12/2023  Metamorphic Dust         293  CM       Tom
+10/12/2023  Arcane Prayer Scroll     296  CM       Tom/Will
+12/12/2023  Dinh's Bulwark           297  CM       Tom/Will  B2B
+13/12/2023  Dexterous Prayer Scroll  298  CM       Tom/Will  B3B
+30/12/2023  Dexterous Prayer Scroll  311  CM       Tom/Will
+31/12/2023  Ancestral Hat            312  CM       Aaron IM
+01/01/2024  Twisted Kit              314  CM       Tom
+08/01/2024  Twisted Kit              323  CM       Tom
+12/01/2024  Ancestral Robe Bottom    327  CM       Tom
+07/01/2024  Dragon Claws             330  CM       Tom
+10/02/2024  Arcane Prayer Scroll     332  CM       Tom
+15/04/2024  Dinh's Bulwark           335  CM       Tom
+05/04/2024  Twisted Kit              337  CM       Will
+06/05/2024  Twisted Bow              341  CM       Tom
+02/01/2026  Arcane Prayer Scroll     354  CM       Tom
+17/01/2026  Arcane Prayer Scroll     365  CM       Tom
+15/07/2026  Twisted Buckler          375  CM       Tom
