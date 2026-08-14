@@ -3,7 +3,7 @@
 A drop log and interactive dashboard for **Chambers of Xeric** (Great Olm) purples, tracked by
 the **Wolfo Bros** — **Wolfo** (Tom) & **Wolfo JR** (Will) — with the occasional guest raid from Aaron.
 
-94 uniques logged since August 2020, spanning the old standard-Chambers grind and the Challenge Mode era.
+95 uniques logged since August 2020, spanning the old standard-Chambers grind and the Challenge Mode era.
 
 ## Live dashboard
 
@@ -42,6 +42,17 @@ value and are counted separately. Prices are a snapshot — baked into the page 
 | [`cox-drop-log.txt`](cox-drop-log.txt) | The raw drop log — a plain-text table, one row per purple. |
 | [`index.html`](index.html) | The self-contained interactive dashboard. |
 | [`assets/icons/`](assets/icons) | Item sprites (webp) used in the dashboard. |
+| [`add-drop.sh`](add-drop.sh) | Logs a new purple to the log *and* the dashboard, then rebuilds. |
+
+## Logging a drop
+
+A drop has to land in the log, the dashboard's data, and the per-raider totals, so there's a script
+that does all of it and rebuilds `index.html` in one go:
+
+```sh
+./add-drop.sh --item tbow --kc 380 --mode CM --player Tom
+./add-drop.sh --help    # item aliases and every flag
+```
 
 ## The data
 
@@ -71,7 +82,7 @@ Per-item **totals** are exact even where individual rows aren't. Reconciled from
 
 | | Tom | Will |
 |---|----:|----:|
-| **Lifetime CoX uniques** | 55 | 48 |
+| **Lifetime CoX uniques** | 55 | 49 |
 
 Some collection-log counts (prayer scrolls, bucklers, kits, DH crossbow) exceed what's in this log —
 those are lifetime totals and include raids that were never written down here.

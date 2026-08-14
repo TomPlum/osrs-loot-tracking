@@ -15,6 +15,8 @@ A drop log + single-page dashboard for **Chambers of Xeric** (Great Olm) purples
 | `src/dashboard_src.html` | **The editable source.** CDN-based (small, easy to edit). Make all dashboard changes here, then run the build. |
 | `src/vendor/` | Build inputs inlined by the build: `fonts_inline.css`, `chart.umd.min.js`, `favicon_line.txt` (Olmlet favicon data-URI). |
 | `build.sh` | Inlines the vendor assets into `src/dashboard_src.html` to produce `index.html`. Cross-platform (POSIX sh + awk + cat). |
+| `add-drop.sh` | Logs a new purple everywhere it needs to appear, then rebuilds. See [Logging a new drop](#logging-a-new-drop). |
+| `.claude/commands/log-drop.md` | The `/log-drop` slash command — turns "tbow 380 cm tom" into the right `add-drop.sh` invocation. |
 | `index.html` | **Generated — do not hand-edit.** Self-contained (fonts, Chart.js, item icons all inlined as base64 `data:` URIs), ~400 KB. |
 | `cox-drop-log.txt` | Raw data: a single fixed-width text table, one row per purple. Source of truth for the drops. |
 | `assets/icons/*.webp` | Item sprites (also inlined into `src` as `ICONS`; this folder is the original source). |
@@ -41,7 +43,7 @@ Tom and Will raid together, so most drops can't be pinned to one brother. The `P
 - `Aaron IM` — Aaron's (guest ironman).
 - blank — can't be pinned even to a brother.
 
-Per-item **totals** are exact (reconciled from both collection logs: lifetime **Tom 55 / Will 48**),
+Per-item **totals** are exact (reconciled from both collection logs: lifetime **Tom 55 / Will 49**),
 even though individual shared rows aren't. In the dashboard JS the raw values are `"Tom"`, `"Will"`,
 `"Tom/Will"`, `"Aaron IM"`, or `null`.
 
@@ -75,6 +77,33 @@ Sourced from the wiki's **Ancient chest unique drop table**
 colour kit** ("Twisted Kit"), **Metamorphic dust**, **Olmlet** — they have `null` in `PRICES`, are
 **left out of the value table**, and are only mentioned as a count in the section's note line.
 When refreshing prices, update the `PRICES` map and `PRICE_ASOF` together.
+
+## Logging a new drop
+
+A drop lands in five places, so **never hand-edit them one by one** — use `/log-drop` (or call the
+script directly):
+
+```
+./add-drop.sh --item tbow --kc 380 --mode CM --player Tom
+./add-drop.sh --item arcane --kc 381 --mode CM --player both --collection Will --notes B2B
+./add-drop.sh --help        # aliases + every flag
+./add-drop.sh ... --dry-run # print the row and DATA entry, write nothing
+```
+
+It appends the fixed-width row to `cox-drop-log.txt`, appends the `DATA` entry in
+`src/dashboard_src.html`, bumps that item's `COLLECTION` row, bumps the drop count and lifetime
+Tom/Will totals in `README.md` + this file, and runs `./build.sh`.
+
+Notes on its behaviour:
+
+- Item names are normalised from aliases (`tbow`, `dex`, `dhcb`, `anc top`, …) to the exact display
+  names `DATA` uses, and separately to the sentence-case names `COLLECTION` uses (`Twisted Kit` →
+  `Twisted ancestral kit`, `Olmlet` → `Olmlet (pet)`). Unknown items are rejected, not guessed.
+- `--collection` is the brother whose **collection log** gained the item, which is not the same
+  question as `--player`. It defaults to `--player` for `Tom`/`Will`; a shared `Tom/Will` drop must
+  state it explicitly (or `none`) so the exact lifetime totals never drift on a guess.
+- It **warns** when the new kc isn't above the highest logged kc for that mode (usually a typo, since
+  Regular and CM count separately) and **blocks** an exact duplicate row unless `--force`.
 
 ## Build
 
