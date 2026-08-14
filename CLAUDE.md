@@ -20,6 +20,7 @@ A drop log + single-page dashboard for **Chambers of Xeric** (Great Olm) purples
 | `index.html` | **Generated — do not hand-edit.** Self-contained (fonts, Chart.js, item icons all inlined as base64 `data:` URIs), ~400 KB. |
 | `cox-drop-log.txt` | Raw data: a single fixed-width text table, one row per purple. Source of truth for the drops. |
 | `assets/icons/*.webp` | Item sprites (also inlined into `src` as `ICONS`; this folder is the original source). |
+| `assets/avatars/*.webp` | Raider avatars — `wolfo.webp` (Tom), `wolfo-jr.webp` (Will). Inlined as `AVATARS`. |
 | `README.md` | Human-facing project overview. |
 
 ## Data model (`cox-drop-log.txt`)
@@ -53,6 +54,11 @@ even though individual shared rows aren't. In the dashboard JS the raw values ar
 - `DATA` — array of `{date,item,kc,mode,who,iso}`, mirrors the raw log. `iso` present only on dated rows.
 - `COLLECTION` — `[item, tomCount, willCount]` rows for the "Loot by Raider" section (exact totals).
 - `ICONS` — map of **lowercase item name → data URI**; `iconFor(name)` / `nameCell(name)` render them.
+- `AVATARS` — map of `"Tom"`/`"Will"` → data URI, with `RSN` for the in-game names and `avatarImg(who, cls)`
+  to render one. Used in the hero crew row, the timeline's corner badge, and the tooltip. **It must stay
+  declared above the hero-stats section** — the hero renders at load and would hit the TDZ otherwise.
+- The **timeline tooltip is an external HTML one** (`tipHTML` / `showTip`), not Chart.js's built-in, because
+  the built-in can't draw the item sprite or raider face. `dropAt[]` maps a label index back to its drop.
 - `PRICES` — map of item display-name → GE price in gp (or `null` for untradeables). `PRICE_ASOF`
   holds the snapshot date. Prices are baked in, **not fetched live**.
 

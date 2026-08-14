@@ -42,6 +42,7 @@ value and are counted separately. Prices are a snapshot — baked into the page 
 | [`cox-drop-log.txt`](cox-drop-log.txt) | The raw drop log — a plain-text table, one row per purple. |
 | [`index.html`](index.html) | The self-contained interactive dashboard. |
 | [`assets/icons/`](assets/icons) | Item sprites (webp) used in the dashboard. |
+| [`assets/avatars/`](assets/avatars) | The brothers' in-game avatars, shown in the header and on the graphs. |
 | [`add-drop.sh`](add-drop.sh) | Logs a new purple to the log *and* the dashboard, then rebuilds. |
 
 ## Logging a drop
