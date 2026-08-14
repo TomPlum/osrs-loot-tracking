@@ -195,6 +195,7 @@
   .legend-item{display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--parchment-dim);}
   .dot{width:9px;height:9px;border-radius:2px;display:inline-block;}
   .dash{width:2px;height:13px;display:inline-block;background:repeating-linear-gradient(180deg,var(--gold) 0 4px,transparent 4px 7px);}
+  .legend-sub{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--parchment-faint);margin-left:3px;}
   .legend-item a{color:inherit;text-decoration:none;border-bottom:1px dotted var(--stone-700);}
   .legend-item a:hover{color:var(--gold-bright);border-bottom-color:var(--gold-bright);}
 
@@ -333,10 +334,21 @@
   .tip-row b{font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--parchment);}
   .tip-row b.gp{color:var(--gold-bright);}
   .tip-row b.untradeable{color:var(--parchment-faint);font-weight:500;}
+  /* estimated attribution must never read as confirmed */
+  .est{font-family:'JetBrains Mono',monospace;font-weight:500;font-size:9.5px;
+    letter-spacing:.08em;text-transform:uppercase;color:var(--parchment-faint);
+    border:1px solid var(--stone-700);border-radius:4px;padding:1px 4px;margin-left:5px;}
   .tip-who{display:flex;align-items:center;gap:7px;}
   .tip-who .avatar{width:22px;height:22px;box-shadow:0 0 0 2px var(--stone-900);}
   /* shared drops show both brothers, overlapped */
   .tip-who .avatar + .avatar{margin-left:-9px;}
+
+  .est-note{
+    margin-top:12px;padding-top:11px;border-top:1px solid var(--stone-800);
+    font-size:11.5px;line-height:1.5;color:var(--parchment-faint);
+  }
+  .est-note:empty{display:none;}
+  .est-note b{color:var(--parchment-dim);font-weight:600;}
 
   .chart-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px;flex-wrap:wrap;}
   .chart-lede{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--parchment-faint);}
@@ -419,6 +431,7 @@
         <span class="legend-item"><span class="dot" style="background:var(--blood-bright)"></span>Challenge Mode</span>
         <span class="legend-item"><span class="dash"></span><a href="https://secure.runescape.com/m=news/summer-sweep-up---agility--chambers-of-xeric-changes?oldschool=1" target="_blank" rel="noopener">Unique rates rebalanced — 12 Aug 2026</a></span>
       </div>
+      <div class="est-note" id="timeline-est"></div>
     </div>
   </section>
 
@@ -556,6 +569,93 @@ const AVATARS = {
 const RSN = { "Tom": "Wolfo", "Will": "Wolfo JR" };
 function avatarImg(who, cls){ const a = AVATARS[who]; return a ? `<img class="${cls}" src="${a}" alt="${who}">` : ""; }
 
+// ---------- inferred attribution ----------
+// The log can't pin a shared duplicate to one brother, but the collection-log
+// totals in COLLECTION are exact -- so each item's unassigned rows are bounded:
+// a brother can only own as many as his total still needs after his confirmed
+// rows. Some items solve outright (4 shared Kodai, Tom needs 2 and Will 2);
+// the rest are apportioned by largest remainder against those residuals, which
+// is why Arcane scrolls land ~15:11 rather than 50/50.
+//
+// This never touches cox-drop-log.txt. `who` stays exactly as logged and
+// `inferred` is a separate, clearly-labelled estimate.
+const COLL_TO_ITEM = { "Twisted ancestral kit": "Twisted Kit", "Olmlet (pet)": "Olmlet (pet)" };
+function collectionKey(name){
+  return COLL_TO_ITEM[name] || name.split(' ')
+    .map(w => w[0].toUpperCase() + w.slice(1)).join(' ');
+}
+function inferAttribution(){
+  const totals = {};
+  COLLECTION.forEach(([n, t, w]) => { totals[collectionKey(n)] = { t, w }; });
+
+  const stats = { assigned: 0, unresolved: 0, exact: 0, items: {} };
+  const byItem = {};
+  DATA.forEach(e => { (byItem[e.item] = byItem[e.item] || []).push(e); });
+
+  Object.entries(byItem).forEach(([item, rows]) => {
+    const c = totals[item];
+    if(!c) return;
+    // rows the log already pins, and the ones left to place
+    const open = rows.filter(e => e.who === 'Tom/Will' || e.who === null);
+    if(!open.length) return;
+    const rt = Math.max(0, c.t - rows.filter(e => e.who === 'Tom').length);
+    const rw = Math.max(0, c.w - rows.filter(e => e.who === 'Will').length);
+
+    // a brother's collection log may also count raids never written down here,
+    // so never hand out more slots than there are rows to fill
+    const place = Math.min(open.length, rt + rw);
+    if(place <= 0){ stats.unresolved += open.length; return; }
+
+    // largest remainder across two shares, each capped by that brother's residual
+    const exactT = place * rt / (rt + rw);
+    let nT = Math.floor(exactT), nW = Math.floor(place * rw / (rt + rw));
+    if(nT + nW < place){ (exactT - nT >= place * rw / (rt + rw) - nW) ? nT++ : nW++; }
+    nT = Math.min(nT, rt); nW = Math.min(place - nT, rw);
+
+    // spread each brother's share evenly through time rather than in blocks, so
+    // neither cumulative line gets a fake plateau or a fake burst
+    let dT = 0, dW = 0;
+    open.forEach((e, k) => {
+      if(k >= place) return; // more logged rows than the collection can absorb
+      const takeTom = nT - dT > 0 &&
+        (nW - dW <= 0 || (dT + 0.5) / nT <= (dW + 0.5) / nW);
+      if(takeTom){ e.inferred = 'Tom'; dT++; } else { e.inferred = 'Will'; dW++; }
+    });
+    stats.assigned += place;
+    stats.unresolved += open.length - place;
+    if(rt + rw === open.length) stats.exact += open.length;
+    stats.items[item] = { open: open.length, tom: nT, will: nW, left: open.length - place };
+  });
+  return stats;
+}
+// who a drop counts for: what the log says, else the estimate
+function ownerOf(e){
+  if(e.who === 'Tom' || e.who === 'Will') return e.who;
+  return e.inferred || null;
+}
+const isEstimated = e => !!e.inferred && e.who !== 'Tom' && e.who !== 'Will';
+
+// ---------- collection-log totals (exact) + the attribution estimate ----------
+const COLLECTION = [
+  ["Arcane prayer scroll",18,11],
+  ["Dexterous prayer scroll",11,13],
+  ["Twisted buckler",5,4],
+  ["Twisted ancestral kit",6,6],
+  ["Kodai insignia",2,2],
+  ["Dinh's bulwark",2,2],
+  ["Dragon claws",2,1],
+  ["Ancestral hat",1,2],
+  ["Ancestral robe top",2,0],
+  ["Ancestral robe bottom",1,2],
+  ["Dragon hunter crossbow",2,1],
+  ["Elder maul",0,2],
+  ["Metamorphic dust",1,0],
+  ["Olmlet (pet)",1,1],
+  ["Twisted bow",1,2],
+];
+// must run after COLLECTION initialises -- it reads the exact totals
+const INFERENCE = inferAttribution();
+
 // ---------- hero stats ----------
 const years = dated.length ? (new Date(dated[dated.length-1].iso) - new Date(dated[0].iso)) / (1000*60*60*24*365.25) : 0;
 document.getElementById('span-years').textContent = years.toFixed(1);
@@ -609,8 +709,8 @@ document.getElementById('kc-grid').innerHTML = `
 
 // ---------- player filter + selector wiring ----------
 function matchesPlayer(e, p){
-  if(p === 'tom')  return e.who === 'Tom'  || e.who === 'Tom/Will';
-  if(p === 'will') return e.who === 'Will' || e.who === 'Tom/Will';
+  if(p === 'tom')  return ownerOf(e) === 'Tom';
+  if(p === 'will') return ownerOf(e) === 'Will';
   return true; // both
 }
 function wireSeg(seg, cb){
@@ -685,15 +785,19 @@ const todayIso = new Date().toISOString().slice(0,10);
 
 const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 function fmtDropDate(iso){ const p = iso.split('-'); return `${+p[2]} ${MONTHS[+p[1]-1]} ${p[0]}`; }
-// spell out what the log's terse attribution values actually mean
-function whoLabel(who){
-  if(who === 'Tom/Will') return 'Tom or Will — shared';
-  if(who === 'Aaron IM') return 'Aaron — guest ironman';
-  return who || 'Unattributed';
+// spell out what the log's terse attribution values actually mean, and never
+// let an estimate pass itself off as a confirmed one
+function whoLabel(e){
+  if(e.who === 'Tom' || e.who === 'Will') return e.who;
+  if(e.inferred) return `${e.inferred} <span class="est">est.</span>`;
+  if(e.who === 'Tom/Will') return 'Tom or Will — shared';
+  if(e.who === 'Aaron IM') return 'Aaron — guest ironman';
+  return 'Unattributed';
 }
-// a shared drop shows both brothers' faces, since either could have banked it
-function whoAvatars(who){
-  const list = who === 'Tom/Will' ? ['Tom','Will'] : (AVATARS[who] ? [who] : []);
+// one face when we can name a brother; both when it's still genuinely either
+function whoAvatars(e){
+  const owner = ownerOf(e);
+  const list = owner ? [owner] : (e.who === 'Tom/Will' ? ['Tom','Will'] : []);
   return list.map(w => avatarImg(w, 'avatar ' + w.toLowerCase())).join("");
 }
 
@@ -714,7 +818,7 @@ function tipHTML(e, cum){
   const priceCell = typeof price === 'number'
     ? `<b class="gp">${fmtFull(price)} gp</b>`
     : `<b class="untradeable">Untradeable</b>`;
-  const faces = whoAvatars(e.who);
+  const faces = whoAvatars(e);
   return `
     <div class="tip-head">
       ${ico ? `<img class="tip-ico" src="${ico}" alt="">` : ''}
@@ -726,7 +830,7 @@ function tipHTML(e, cum){
     <div class="tip-rows">
       <div class="tip-row"><span>Value</span>${priceCell}</div>
       <div class="tip-row"><span>${e.mode === 'CM' ? 'Challenge Mode' : 'Regular'}</span><b>purple #${cum}</b></div>
-      <div class="tip-row"><span>Raider</span><span class="tip-who">${faces}<b>${whoLabel(e.who)}</b></span></div>
+      <div class="tip-row"><span>Raider</span><span class="tip-who">${faces}<b>${whoLabel(e)}</b></span></div>
     </div>`;
 }
 function showTip(context, dropAt){
@@ -769,6 +873,15 @@ function buildTimeline(player){
   // badge the chart with whoever it's filtered to; 'both' shows nobody
   const av = document.getElementById('timeline-avatar');
   const who = player === 'tom' ? 'Tom' : player === 'will' ? 'Will' : null;
+
+  // say plainly how much of this view is estimated rather than logged
+  const est = src.filter(isEstimated).length;
+  document.getElementById('timeline-est').innerHTML = who && est
+    ? `<b>${est} of ${src.length}</b> drops here are estimated. The log can't pin a shared
+       duplicate to one brother, so they're apportioned against each brother's exact
+       collection-log totals. Per-item counts are right; which specific raid a duplicate
+       came from is a best guess.`
+    : '';
   av.classList.toggle('show', !!who);
   av.classList.toggle('tom', who === 'Tom');
   av.classList.toggle('will', who === 'Will');
@@ -923,20 +1036,29 @@ document.getElementById('mode-legend').innerHTML = `
 `;
 
 // ---------- who donut ----------
-const whoCounts = {Tom:0, Will:0, Shared:0, Aaron:0, Unknown:0};
+// There's no "shared" slice any more -- the estimate resolves those rows to a
+// brother. But the uncertainty shouldn't vanish with it, so each brother is
+// split into what the log states outright and what was apportioned to him.
+const whoCounts = {TomLogged:0, TomEst:0, WillLogged:0, WillEst:0, Aaron:0, Unattributed:0};
 DATA.forEach(e => {
-  if(e.who === "Tom") whoCounts.Tom++;
-  else if(e.who === "Will") whoCounts.Will++;
-  else if(e.who === "Tom/Will") whoCounts.Shared++;
-  else if(e.who) whoCounts.Aaron++;
-  else whoCounts.Unknown++;
+  if(e.who === "Tom") whoCounts.TomLogged++;
+  else if(e.who === "Will") whoCounts.WillLogged++;
+  else if(e.inferred === "Tom") whoCounts.TomEst++;
+  else if(e.inferred === "Will") whoCounts.WillEst++;
+  else if(e.who === "Aaron IM") whoCounts.Aaron++;
+  else whoCounts.Unattributed++;   // the rows the collection logs can't absorb
 });
-const SHARED_COL = '#c9bd9c';
+const tomAll = whoCounts.TomLogged + whoCounts.TomEst;
+const willAll = whoCounts.WillLogged + whoCounts.WillEst;
 new Chart(document.getElementById('whoChart'), {
   type: 'doughnut',
   data: {
-    labels: ['Tom','Will','Tom or Will (shared)','Aaron','Unknown'],
-    datasets: [{ data:[whoCounts.Tom, whoCounts.Will, whoCounts.Shared, whoCounts.Aaron, whoCounts.Unknown], backgroundColor:[GOLD_BRIGHT, JUNGLE_BRIGHT, SHARED_COL, BLOOD_BRIGHT, '#3a2f22'], borderColor:'#1a1510', borderWidth:3 }]
+    labels: ['Tom — logged','Tom — estimated','Will — logged','Will — estimated','Aaron','Unattributed'],
+    datasets: [{
+      data:[whoCounts.TomLogged, whoCounts.TomEst, whoCounts.WillLogged, whoCounts.WillEst, whoCounts.Aaron, whoCounts.Unattributed],
+      backgroundColor:[GOLD_BRIGHT, GOLD, JUNGLE_BRIGHT, JUNGLE, BLOOD_BRIGHT, '#3a2f22'],
+      borderColor:'#1a1510', borderWidth:3
+    }]
   },
   options: {
     responsive:true,
@@ -944,12 +1066,14 @@ new Chart(document.getElementById('whoChart'), {
     plugins:{ legend:{display:false}, tooltip:{backgroundColor:'#1a1510', borderColor:'#3a2f22', borderWidth:1, titleColor:GOLD_BRIGHT, bodyColor:PARCH} }
   }
 });
+// one entry per raider, with a two-tone dot standing for the logged/estimated pair
+const splitDot = (bright, dim) =>
+  `<span class="dot" style="background:linear-gradient(90deg,${bright} 0 50%,${dim} 50% 100%)"></span>`;
 document.getElementById('who-legend').innerHTML = `
-  <span class="legend-item"><span class="dot" style="background:${GOLD_BRIGHT}"></span>Tom — ${whoCounts.Tom}</span>
-  <span class="legend-item"><span class="dot" style="background:${JUNGLE_BRIGHT}"></span>Will — ${whoCounts.Will}</span>
-  <span class="legend-item"><span class="dot" style="background:${SHARED_COL}"></span>Shared — ${whoCounts.Shared}</span>
+  <span class="legend-item">${splitDot(GOLD_BRIGHT, GOLD)}Tom — ${tomAll} <span class="legend-sub">${whoCounts.TomLogged} logged · ${whoCounts.TomEst} est.</span></span>
+  <span class="legend-item">${splitDot(JUNGLE_BRIGHT, JUNGLE)}Will — ${willAll} <span class="legend-sub">${whoCounts.WillLogged} logged · ${whoCounts.WillEst} est.</span></span>
   <span class="legend-item"><span class="dot" style="background:${BLOOD_BRIGHT}"></span>Aaron — ${whoCounts.Aaron}</span>
-  <span class="legend-item"><span class="dot" style="background:#3a2f22"></span>Unknown — ${whoCounts.Unknown}</span>
+  <span class="legend-item"><span class="dot" style="background:#3a2f22"></span>Unattributed — ${whoCounts.Unattributed}</span>
 `;
 
 // ---------- year chart ----------
@@ -980,23 +1104,6 @@ function buildYear(player){
 }
 
 // ---------- loot by raider (from collection logs) ----------
-const COLLECTION = [
-  ["Arcane prayer scroll",18,11],
-  ["Dexterous prayer scroll",11,13],
-  ["Twisted buckler",5,4],
-  ["Twisted ancestral kit",6,6],
-  ["Kodai insignia",2,2],
-  ["Dinh's bulwark",2,2],
-  ["Dragon claws",2,1],
-  ["Ancestral hat",1,2],
-  ["Ancestral robe top",2,0],
-  ["Ancestral robe bottom",1,2],
-  ["Dragon hunter crossbow",2,1],
-  ["Elder maul",0,2],
-  ["Metamorphic dust",1,0],
-  ["Olmlet (pet)",1,1],
-  ["Twisted bow",1,2],
-];
 const rMax = Math.max(...COLLECTION.map(r => Math.max(r[1], r[2])));
 const tomTot = COLLECTION.reduce((a,r)=>a+r[1],0);
 const willTot = COLLECTION.reduce((a,r)=>a+r[2],0);

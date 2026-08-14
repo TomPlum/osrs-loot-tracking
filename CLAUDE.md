@@ -48,11 +48,41 @@ Per-item **totals** are exact (reconciled from both collection logs: lifetime **
 even though individual shared rows aren't. In the dashboard JS the raw values are `"Tom"`, `"Will"`,
 `"Tom/Will"`, `"Aaron IM"`, or `null`.
 
+## Estimated attribution
+
+`inferAttribution()` fills in the rows the log can't pin (`Tom/Will` and blank). **It never writes to
+`cox-drop-log.txt`** — `who` stays exactly as logged and the estimate lives in a separate `inferred`
+field, deliberately, so confirmed and guessed never blur.
+
+The method leans on `COLLECTION` being exact: per item, a brother's residual (his collection total
+minus his confirmed rows) bounds how many unassigned rows can be his. Several items solve outright
+(4 shared Kodai, Tom needs 2 / Will needs 2); the rest are apportioned by largest remainder against
+those residuals, then **interleaved through time** so neither cumulative line gets a fake plateau.
+
+Invariants worth preserving if you touch this:
+
+- **Never exceed a collection total.** `place = min(openRows, residualTom + residualWill)`, and each
+  share is capped at that brother's residual.
+- **Leftovers stay unattributed.** Two items have more logged rows than the collection logs can
+  absorb (dexterous scrolls 25 vs 24, elder maul 3 vs 2), so one row of each is left unowned rather
+  than force-fitted. Overall there's the opposite slack — the totals account for ~10 off-log raids.
+- **Ordering matters, and it's all TDZ-sensitive.** The chain is: the inference block (which owns
+  `COLL_TO_ITEM`) → `COLLECTION` → `INFERENCE = inferAttribution()` → everything that reads
+  `ownerOf`/`inferred`. All three now sit **above the hero section**, because the who-donut consumes
+  `e.inferred` far earlier in the file than the loot-by-raider section where `COLLECTION` used to
+  live. Move any of them below a consumer and you get either a TDZ throw or, worse, a silently empty
+  estimate — the donut showed `0 estimated / 69 unattributed` when it ran before the inference.
+- `ownerOf(e)` is the accessor everything should use; `isEstimated(e)` drives the `est.` tag in
+  tooltips and the per-view note.
+
 ## Dashboard internals (in `index.html` / the source)
 
 - Charts use **Chart.js 4.4.4** (UMD), inlined.
 - `DATA` — array of `{date,item,kc,mode,who,iso}`, mirrors the raw log. `iso` present only on dated rows.
 - `COLLECTION` — `[item, tomCount, willCount]` rows for the "Loot by Raider" section (exact totals).
+  Also the basis of the attribution estimate, so it's declared near the top, not beside its table.
+- The **who donut** has no "shared" slice any more; it splits each brother into *logged* (bright) and
+  *estimated* (dim), so the uncertainty the shared slice used to carry is still visible.
 - `ICONS` — map of **lowercase item name → data URI**; `iconFor(name)` / `nameCell(name)` render them.
 - `AVATARS` — map of `"Tom"`/`"Will"` → data URI, with `RSN` for the in-game names and `avatarImg(who, cls)`
   to render one. Used in the hero crew row, the timeline's corner badge, and the tooltip. **It must stay
@@ -67,8 +97,8 @@ even though individual shared rows aren't. In the dashboard JS the raw values ar
 The time-based cards (**Drops over time**, **Loot value**, **Drops per year**) each have a segmented
 control (`.seg`, ids `seg-timeline` / `seg-value` / `seg-year`) in their top-right.
 
-- `matchesPlayer(e, p)`: `both` → all; `tom` → `who` is `Tom` **or** `Tom/Will`; `will` → `Will` **or**
-  `Tom/Will`. **Shared drops appear in both individual views**, so Tom's and Will's totals overlap.
+- `matchesPlayer(e, p)`: `both` → all; `tom`/`will` → `ownerOf(e)` matches. **The views are disjoint** —
+  a drop counts for at most one brother (see [Estimated attribution](#estimated-attribution)).
 - Each chart is a `buildX(player)` function that `destroy()`s and recreates its Chart instance.
   `wireSeg(el, cb)` handles button clicks + active state. Initial render + wiring happen at the end of
   `initDashboard()`.

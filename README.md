@@ -25,8 +25,9 @@ It renders:
 - **Drops per year** and a **recent feed** of the last 12 drops.
 
 The time-based graphs (**Drops over time**, **Loot value**, **Drops per year**) each carry a
-**Both / Tom / Will** selector in their top-right corner. The individual views include shared drops
-(either brother), so Tom's and Will's totals overlap on the raids they did together.
+**Both / Tom / Will** selector in their top-right corner. Tom's and Will's views are now disjoint —
+every drop counts for at most one brother — because shared duplicates are apportioned against the
+exact collection-log totals (see [Estimated attribution](#estimated-attribution)).
 
 ### Loot value
 
@@ -87,6 +88,22 @@ Per-item **totals** are exact even where individual rows aren't. Reconciled from
 
 Some collection-log counts (prayer scrolls, bucklers, kits, DH crossbow) exceed what's in this log —
 those are lifetime totals and include raids that were never written down here.
+
+### Estimated attribution
+
+The log itself never guesses: a shared row stays `Tom/Will` forever. But the **dashboard** splits those
+rows so the per-raider graphs mean something, using the fact that the collection-log totals above are
+exact. For each item, whatever a brother's total still needs after his confirmed rows bounds how many
+of the unassigned rows can be his.
+
+Some items fall out exactly — four shared Kodai insignias, Tom needs two and Will needs two, so there's
+nothing to guess. The rest are apportioned by largest remainder against those residuals, which is why
+the 21 shared arcane scrolls land 12:9 rather than an even split, and each brother's share is spread
+through time rather than assigned in a block.
+
+Estimated drops are labelled `est.` in the graph tooltips, and each per-raider view says how many of
+its drops are estimates. Two rows stay unattributed because the collection logs can't absorb them: one
+dexterous scroll and one elder maul, most likely a guest raider's or a logging slip.
 
 ### Data clean-up notes
 
