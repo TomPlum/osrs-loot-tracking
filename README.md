@@ -16,13 +16,25 @@ external requests, works offline).
 
 It renders:
 
-- **Kill-count progress** — Regular Chambers and Challenge Mode run on separate KC counters.
-- **Drops over time** — cumulative purples, split by raid mode.
-- **Drought watch** — the longest dry streaks, measured in KC.
-- **Loot table breakdown** — every unique, ranked by how often it dropped, with in-game icons.
-- **Loot value** — the whole haul priced at the current Grand Exchange rates.
+- **Kill-count progress** — Regular Chambers and Challenge Mode run on separate KC counters, with a
+  live count and current dry streak pulled from Wise Old Man.
+- **Drops over time** — cumulative purples, split by raid mode, with a node per drop.
+- **Drought watch** — the longest dry streaks in KC, plus the full distribution of every gap so the
+  current one can be read against what normal looks like.
+- **Loot table breakdown** — every unique ranked by how often it dropped, and when each was first
+  obtained (the log was completed on 3 Dec 2023 with Metamorphic dust).
+- **Luck vs the drop table** — what the Ancient chest owed them against what it gave. Needs no raid
+  count or points estimate, only the fixed weights within the unique table.
+- **Loot value** — the whole haul at live Grand Exchange prices.
 - **Loot by raider** — the Tom vs Will split, reconciled from collection logs.
-- **Drops per year** and a **recent feed** of the last 12 drops.
+- **Drops per year**, a **calendar heatmap** of every week since 2020, and a **recent feed**.
+
+### Live data
+
+Two free, keyless public APIs top the page up: [Wise Old Man](https://wiseoldman.net) for current kill
+counts, and the [wiki's real-time prices](https://prices.runescape.wiki) for the loot value. Both are
+optional extras — the page is fully self-contained and renders everything from baked data first, so it
+still works offline or opened straight from disk.
 
 The time-based graphs (**Drops over time**, **Loot value**, **Drops per year**) each carry a
 **Both / Tom / Will** selector in their top-right corner. Tom's and Will's views are now disjoint —

@@ -72,6 +72,14 @@ Invariants worth preserving if you touch this:
   `e.inferred` far earlier in the file than the loot-by-raider section where `COLLECTION` used to
   live. Move any of them below a consumer and you get either a TDZ throw or, worse, a silently empty
   estimate — the donut showed `0 estimated / 69 unattributed` when it ran before the inference.
+
+> **This whole file is one big `initDashboard()` scope, so `const`/`let` ordering is a live hazard and
+> has caused three separate bugs.** `AVATARS` below the hero, `COLL_TO_ITEM` below its own caller, and
+> `LIVE_KC` below `buildDroughts()` all threw or silently zeroed. The current safe order is: inference
+> block → `COLLECTION` → `INFERENCE` → `AVATARS` → hero → `ICONS` → WOM block (`LIVE_KC`) → drought
+> distribution → firsts → heatmap → luck → prices → initial renders. **If you move a block, run the
+> page in Node against a stubbed `Chart`/`document` before shipping** — a silent zero looks fine in a
+> screenshot.
 - `ownerOf(e)` is the accessor everything should use; `isEstimated(e)` drives the `est.` tag in
   tooltips and the per-view note.
 
@@ -105,6 +113,33 @@ control (`.seg`, ids `seg-timeline` / `seg-value` / `seg-year`) in their top-rig
 
 To add another filterable chart: add a `.chart-head` with a `.seg` in the HTML, write a
 `buildX(player)`, then `buildX('both')` + `wireSeg(document.getElementById('seg-x'), buildX)`.
+
+## Live data (two public APIs)
+
+Both are **free, keyless, and CORS-open** (`access-control-allow-origin: *`), and both are strictly an
+**enhancement layer**: the page renders complete from baked data first, and a failed fetch adds
+nothing. Never make either one load-bearing — `index.html` must still work opened from `file://`.
+
+| API | Used for | Limit | Gotcha |
+|-----|----------|-------|--------|
+| [Wise Old Man](https://docs.wiseoldman.net/) `api.wiseoldman.net/v2/players/{name}` | live CoX + CM kill counts | 20 req/min | lookup names differ from display names — see below |
+| [Wiki real-time prices](https://oldschool.runescape.wiki/w/RuneScape:Real-time_Prices) `prices.runescape.wiki/api/v1/osrs/latest` | refreshing `PRICES` | none stated, 60s cache | asks for a descriptive User-Agent, which browsers forbid pages from setting |
+
+Things that will bite you:
+
+- **Hiscores names are not the display names.** Tom's account is **`iWolfo`**, Will's is `wolfo jr`.
+  `WOM_PLAYERS` holds the lookup keys; **`RSN` holds what the UI shows** (Wolfo / Wolfo JR). Never
+  render a `WOM_PLAYERS` value — the user asked specifically that the UI keep saying "Wolfo".
+- **WOM snapshots can be older than the log, or just plain old.** A player is only re-read when
+  someone syncs them, so two independent problems arise, and `renderLiveKc()` handles both:
+  its KC may be *behind* a purple already logged (378 CM against the log's 380 — a naive subtraction
+  prints a **negative** dry streak, so this reports the snapshot as stale instead); or it may be ahead
+  but months old (iWolfo's was 184 days stale), in which case the reading is labelled "as of \<date\>"
+  rather than "now". Keep both branches.
+- `kills: -1` means unranked, not zero. Filter it.
+- **Price refresh is all-or-nothing.** A partial response would mix live and baked prices inside one
+  total, so `refreshPrices()` only commits when every id resolves.
+- Item ids in `PRICE_IDS` came from the API's own `/mapping` endpoint. Re-derive them there, don't guess.
 
 ## GE prices
 

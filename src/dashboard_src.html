@@ -201,6 +201,17 @@
     border-radius:7px;padding:5px 11px;}
   .luck-verdict b{color:var(--gold-bright);}
 
+  /* ---------- live kc (Wise Old Man) ---------- */
+  .kc-live{margin-top:12px;padding-top:11px;border-top:1px solid var(--stone-800);
+    font-size:11.5px;line-height:1.55;color:var(--parchment-dim);}
+  .kc-live:empty{display:none;}
+  .kc-live b{color:var(--parchment);font-family:'JetBrains Mono',monospace;}
+  .live-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--jungle-bright);
+    margin-right:7px;vertical-align:middle;box-shadow:0 0 0 2px rgba(123,165,102,.2);}
+  .live-dot.stale{background:var(--parchment-faint);box-shadow:0 0 0 2px rgba(143,132,103,.18);}
+  .live-src{display:block;margin-top:3px;font-family:'JetBrains Mono',monospace;
+    font-size:9.5px;letter-spacing:.05em;color:var(--parchment-faint);}
+
   /* ---------- collection-log firsts ---------- */
   .first-row{display:grid;grid-template-columns:24px 1fr auto auto;align-items:center;gap:12px;
     padding:8px 2px;border-bottom:1px solid var(--stone-800);}
@@ -475,6 +486,19 @@
       <div class="sec-note">The longest gaps between purples, measured in kill count — not calendar time.</div>
     </div>
     <div class="callout-grid" id="dry-grid"></div>
+    <div class="card" style="margin-top:18px">
+      <div class="chart-head">
+        <span class="chart-lede">How long a drought usually lasts</span>
+        <span class="luck-verdict" id="dry-verdict"></span>
+      </div>
+      <canvas id="dryChart" height="110"></canvas>
+      <div class="legend-row">
+        <span class="legend-item"><span class="dot" style="background:var(--jungle-bright)"></span>Regular Chambers</span>
+        <span class="legend-item"><span class="dot" style="background:var(--blood-bright)"></span>Challenge Mode</span>
+        <span class="legend-item"><span class="dash"></span>Current streak</span>
+      </div>
+      <div class="est-note" id="dry-note"></div>
+    </div>
   </section>
 
   <section class="divider-top">
@@ -767,12 +791,14 @@ document.getElementById('kc-grid').innerHTML = `
     <div class="kc-num">${regMaxKc}<span style="font-size:16px;color:${PARCH_FAINT}"> kc</span></div>
     <div class="kc-sub">Last logged purple at this count · retired as main grind Jan 2022</div>
     <div class="kc-bar-track"><div class="kc-bar-fill" style="width:100%"></div></div>
+    <div class="kc-live" id="kc-live-reg"></div>
   </div>
   <div class="kc-card cm">
     <div class="kc-mode">Challenge Mode</div>
     <div class="kc-num">${cmMaxKc}<span style="font-size:16px;color:${PARCH_FAINT}"> kc</span></div>
     <div class="kc-sub">Current grind · started from 1kc on 16 Jan 2022, still active in 2026</div>
     <div class="kc-bar-track"><div class="kc-bar-fill" style="width:${Math.min(100, cmMaxKc/regMaxKc*100)}%"></div></div>
+    <div class="kc-live" id="kc-live-cm"></div>
   </div>
 `;
 
@@ -1050,6 +1076,164 @@ document.getElementById('dry-grid').innerHTML = `
     <p>Between <b style="color:${PARCH}">${regDry.from.item}</b> at ${regDry.from.kc}kc and <b style="color:${PARCH}">${regDry.to.item}</b> at ${regDry.to.kc}kc (${regDry.to.iso}).</p>
   </div>
 `;
+
+// ---------- live kill counts (Wise Old Man) ----------
+// Free, no key, CORS-open, 20 req/min; we make one call per tracked brother.
+// https://docs.wiseoldman.net/players-api
+//
+// Everything below is an enhancement layer: the page renders complete from the
+// baked log first, and this only ever adds to it. Offline, blocked, 404, or
+// rate-limited all degrade to showing nothing extra.
+//
+// The subtlety worth keeping: WOM snapshots update only when someone syncs that
+// player, so its KC can be BEHIND the log (it read 378 CM while the log already
+// had a purple at 380). A naive subtraction would print a negative dry streak,
+// so a stale snapshot is reported as stale rather than used.
+// Lookup keys only -- Tom's account is "iWolfo" on the hiscores. Display always
+// goes through RSN (Wolfo / Wolfo JR); don't let these two drift into the UI.
+const WOM_PLAYERS = { Tom: 'iwolfo', Will: 'wolfo jr' };
+const WOM_METRIC = { Regular: 'chambers_of_xeric', CM: 'chambers_of_xeric_challenge_mode' };
+let LIVE_KC = null;   // { Regular:{kc,who,at}, CM:{...} } once resolved
+
+async function fetchWom(){
+  const results = await Promise.all(Object.entries(WOM_PLAYERS).map(async ([who, name]) => {
+    try {
+      const r = await fetch(`https://api.wiseoldman.net/v2/players/${encodeURIComponent(name)}`);
+      if(!r.ok) return null;                       // 404 = not tracked on WOM
+      const d = await r.json();
+      const bosses = ((d.latestSnapshot || {}).data || {}).bosses || {};
+      const at = (d.latestSnapshot || {}).createdAt || d.updatedAt || null;
+      const out = { who, at, kc: {} };
+      Object.entries(WOM_METRIC).forEach(([mode, metric]) => {
+        const k = (bosses[metric] || {}).kills;
+        if(typeof k === 'number' && k > 0) out.kc[mode] = k;   // -1 means unranked
+      });
+      return out;
+    } catch { return null; }                       // offline / blocked / CORS
+  }));
+  const live = {};
+  results.filter(Boolean).forEach(r => {
+    Object.entries(r.kc).forEach(([mode, kc]) => {
+      // they raid together, so the furthest-along tracked account is the team's kc
+      if(!live[mode] || kc > live[mode].kc) live[mode] = { kc, who: r.who, at: r.at };
+    });
+  });
+  return Object.keys(live).length ? live : null;
+}
+
+function renderLiveKc(){
+  if(!LIVE_KC) return;
+  [['Regular', 'kc-live-reg', regMaxKc], ['CM', 'kc-live-cm', cmMaxKc]].forEach(([mode, id, logged]) => {
+    const l = LIVE_KC[mode];
+    const el = document.getElementById(id);
+    if(!l || !el) return;
+    const synced = l.at ? fmtDropDate(l.at.slice(0, 10)) : 'unknown date';
+    if(l.kc < logged){
+      // WOM is behind the log -- say so instead of inventing a negative streak
+      el.innerHTML = `<span class="live-dot stale"></span>Wise Old Man last synced ${synced}
+        at <b>${l.kc} kc</b>, behind this log — sync ${RSN[l.who]} for a live count.`;
+      return;
+    }
+    // a snapshot only updates when someone syncs that player, so it can be months
+    // old; don't call a February reading "now"
+    const ageDays = l.at ? (Date.now() - Date.parse(l.at)) / 864e5 : Infinity;
+    const fresh = ageDays <= 30;
+    const dry = l.kc - logged;
+    el.innerHTML = `<span class="live-dot${fresh ? '' : ' stale'}"></span>` +
+      `<b>${l.kc} kc</b> ${fresh ? 'now' : `as of ${synced}`} —
+       <b>${dry}</b> dry since the last purple.
+       <span class="live-src">${RSN[l.who]} via Wise Old Man` +
+      (fresh ? `, ${synced}` : ` · ${Math.round(ageDays)} days stale, sync for a current count`) +
+      `</span>`;
+  });
+}
+
+// ---------- drought distribution ----------
+// Every gap between consecutive purples in a mode, binned, so the current dry
+// stretch can be read against what "normal" has actually looked like.
+const DRY_BIN = 5;
+function gapsFor(items){
+  const s = items.slice().sort((a, b) => a.kc - b.kc);
+  return s.slice(1).map((e, i) => e.kc - s[i].kc);
+}
+// where the current streak would rank among past ones, as a percentile
+function pctBelow(gaps, v){
+  return gaps.length ? Math.round(gaps.filter(g => g < v).length / gaps.length * 100) : 0;
+}
+let dryChart = null;
+function currentStreak(mode){
+  // only meaningful when the live count is actually ahead of the last logged purple
+  const l = LIVE_KC && LIVE_KC[mode];
+  const logged = mode === 'CM' ? cmMaxKc : regMaxKc;
+  return (l && l.kc > logged) ? l.kc - logged : null;
+}
+const streakMarker = {
+  id: 'streakMarker',
+  afterDatasetsDraw(chart){
+    const cur = currentStreak('CM');
+    if(cur == null) return;
+    const xs = chart.scales.x;
+    const x = xs.getPixelForValue(Math.min(Math.floor(cur / DRY_BIN), chart.data.labels.length - 1));
+    const { top, bottom } = chart.chartArea, c = chart.ctx;
+    c.save();
+    c.setLineDash([5, 4]); c.lineWidth = 1.5; c.strokeStyle = GOLD;
+    c.beginPath(); c.moveTo(x, top); c.lineTo(x, bottom); c.stroke();
+    c.setLineDash([]); c.font = "600 10px 'Inter', sans-serif";
+    const label = `now: ${cur} kc`, w = c.measureText(label).width;
+    const bx = Math.min(x + 6, chart.chartArea.right - w - 12);
+    c.beginPath();
+    if(c.roundRect) c.roundRect(bx, top + 4, w + 12, 17, 4); else c.rect(bx, top + 4, w + 12, 17);
+    c.fillStyle = 'rgba(26,21,16,0.92)'; c.fill();
+    c.lineWidth = 1; c.strokeStyle = GOLD; c.stroke();
+    c.fillStyle = GOLD_BRIGHT; c.textBaseline = 'middle';
+    c.fillText(label, bx + 6, top + 4 + 9);
+    c.restore();
+  },
+};
+function buildDroughts(){
+  const g = { Regular: gapsFor(regItems), CM: gapsFor(cmItems) };
+  const maxGap = Math.max(...g.Regular, ...g.CM, currentStreak('CM') || 0);
+  const bins = Math.floor(maxGap / DRY_BIN) + 1;
+  const labels = Array.from({length: bins}, (_, i) => `${i * DRY_BIN}–${i * DRY_BIN + DRY_BIN - 1}`);
+  const hist = arr => { const h = Array(bins).fill(0);
+    arr.forEach(v => h[Math.min(Math.floor(v / DRY_BIN), bins - 1)]++); return h; };
+
+  if(dryChart) dryChart.destroy();
+  dryChart = new Chart(document.getElementById('dryChart'), {
+    type: 'bar',
+    plugins: [streakMarker],
+    data: { labels, datasets: [
+      { label:'Regular', data: hist(g.Regular), backgroundColor: JUNGLE_BRIGHT, borderRadius: 2 },
+      { label:'Challenge Mode', data: hist(g.CM), backgroundColor: BLOOD_BRIGHT, borderRadius: 2 },
+    ]},
+    options: {
+      responsive: true,
+      plugins: { legend:{display:false}, tooltip:{ backgroundColor:'#1a1510', borderColor:'#3a2f22',
+        borderWidth:1, titleColor:GOLD_BRIGHT, bodyColor:PARCH,
+        callbacks:{ title: i => `${i[0].label} kc between purples`,
+                    label: i => `${i.dataset.label}: ${i.parsed.y} time${i.parsed.y===1?'':'s'}` } } },
+      scales: {
+        x: { stacked:true, ticks:{ color:PARCH_FAINT, font:{size:10}, maxRotation:0, autoSkip:true, maxTicksLimit:12 },
+             grid:{display:false}, title:{display:true, text:'KC between purples', color:PARCH_FAINT, font:{size:11}} },
+        y: { stacked:true, ticks:{ color:PARCH_FAINT, font:{size:11}, precision:0 }, grid:{color:'#2a211855'},
+             title:{display:true, text:'Times', color:PARCH_FAINT, font:{size:11}} },
+      },
+    },
+  });
+
+  const med = a => { const s = a.slice().sort((x,y)=>x-y); return s[Math.floor(s.length/2)]; };
+  document.getElementById('dry-verdict').innerHTML =
+    `typical CM gap <b>${med(g.CM)} kc</b> · worst <b>${Math.max(...g.CM)} kc</b>`;
+  const cur = currentStreak('CM');
+  document.getElementById('dry-note').innerHTML =
+    `Across ${g.CM.length} Challenge Mode gaps the median is <b>${med(g.CM)} kc</b> and the worst ever
+     was <b>${Math.max(...g.CM)} kc</b>; Regular Chambers ran drier, a median of
+     <b>${med(g.Regular)} kc</b> across ${g.Regular.length} gaps. ` +
+    (cur != null
+      ? `Currently <b>${cur} kc</b> dry in CM — longer than <b>${pctBelow(g.CM, cur)}%</b> of past droughts.`
+      : `The current streak needs a Wise Old Man sync newer than the last logged purple to show here.`);
+}
+buildDroughts();
 
 const ICONS = {
   "kodai insignia": "data:image/webp;base64,UklGRsgBAABXRUJQVlA4TLsBAAAvFgAGEAfjNpIkRcrpubtnDf037jWU+N8OR27bSJLjpHv29Tj/f2HPcaYtx40kScpMVe+9+9oFTMNLvOM3WZr/oP74+RjXyTiTYQrfhuNiWlbpMi6z7tIz65Z0qbJuiUtssZRtXFfdUmWxxVItKSlbbKmubLFUSdnaXdmqpKfc5+v8bT57c9qa5948fkAAFIAEQPEjAARBgAAk/gKAEBAAQOInAAJAQAAEX0CQARDQIAC+Gfz/NtvP9l3SMkxZX0/dtrlfZodFj8VdLLEZIMi2ZUjKtm3btm1j1D2u/e+i8TOX8DOi/wzcNlLkZd6DVwhMgSBbD/aGhKGn2e4NJoTWU642Wt3+eA5BzBZK1Xqr0x/NwJTO5IuV2q1vOF2CMrliudZodweTxQaUeuobz9fgbEzkKvVmpzearfaweLpy6xtOl7sTLJrMNx8mHSkvK+Z1Ws3j+frwApe/YafVqN7i/vwK+/FZDSrZQ6D4smjkMiSIcPr//rxI4TF8CH/Xi4Ty5MEQhjFy/RATAeZDPw/o3kVEoAi6PdymeaP/BwGHE/VqBn63zaRVMfC67AaNkoHDpNNyBR3Hh0BNHAA=",
@@ -1427,6 +1611,37 @@ const PRICES = {
   "Olmlet (pet)": null,      // untradeable pet
 };
 const PRICE_ASOF = "2 Aug 2026";
+// Real-time GE prices, free and CORS-open, cached 60s upstream.
+// https://oldschool.runescape.wiki/w/RuneScape:Real-time_Prices
+// IDs taken from the API's own /mapping endpoint, not guessed.
+// Note: the API asks for a descriptive User-Agent, which browsers forbid pages
+// from setting -- we send the browser's own and keep it to one call per load.
+const PRICE_IDS = {
+  "Twisted Bow": 20997, "Ancestral Robe Top": 21021, "Ancestral Robe Bottom": 21024,
+  "Ancestral Hat": 21018, "Kodai Insignia": 21043, "Elder Maul": 21003,
+  "Dragon Claws": 13652, "Dragon Hunter Crossbow": 21012, "Dexterous Prayer Scroll": 21034,
+  "Arcane Prayer Scroll": 21079, "Twisted Buckler": 21000, "Dinh's Bulwark": 21015,
+};
+let PRICE_LIVE = false;
+async function refreshPrices(){
+  try {
+    const r = await fetch('https://prices.runescape.wiki/api/v1/osrs/latest');
+    if(!r.ok) return false;
+    const data = (await r.json()).data || {};
+    let hits = 0;
+    Object.entries(PRICE_IDS).forEach(([item, id]) => {
+      const e = data[id];
+      if(!e) return;
+      // midpoint of instant-buy and instant-sell; fall back to whichever side traded
+      const p = (e.high && e.low) ? Math.round((e.high + e.low) / 2) : (e.high || e.low);
+      if(typeof p === 'number' && p > 0){ PRICES[item] = p; hits++; }
+    });
+    // a partial response would mix live and stale prices in one total, so take all or nothing
+    if(hits !== Object.keys(PRICE_IDS).length) return false;
+    PRICE_LIVE = true;
+    return true;
+  } catch { return false; }   // offline, blocked, or CORS -- keep the baked values
+}
 function fmtGp(n){
   if(n >= 1e9) return (n/1e9).toFixed(2).replace(/\.?0+$/,'') + "B";
   if(n >= 1e6) return (n/1e6).toFixed(0) + "M";
@@ -1434,7 +1649,9 @@ function fmtGp(n){
   return String(n);
 }
 const fmtFull = n => n.toLocaleString('en-GB');
+let valuePlayer = 'both';    // remembered so a live price refresh can redraw in place
 function buildValue(player){
+  valuePlayer = player;
   const src = DATA.filter(e => matchesPlayer(e, player));
   const counts = {};
   src.forEach(e => { counts[e.item] = (counts[e.item]||0)+1; });
@@ -1454,7 +1671,10 @@ function buildValue(player){
   document.getElementById('value-meta').innerHTML =
     `Across <b>${tradeableDrops}</b> tradeable ${dropWord}` +
     (untradeableDrops ? ` (${untradeableDrops} untradeable drops — pet, dust &amp; colour kits — carry no GE value and are left out)` : '') +
-    `. Prices from the <b>oldschool.runescape.wiki</b> live Grand Exchange, as of <b>${PRICE_ASOF}</b>.`;
+    (PRICE_LIVE
+      ? `. <span class="live-dot"></span>Live real-time Grand Exchange prices from
+         <b>prices.runescape.wiki</b>, fetched just now — the midpoint of instant-buy and instant-sell.`
+      : `. Prices from the <b>oldschool.runescape.wiki</b> Grand Exchange, baked in on <b>${PRICE_ASOF}</b>.`);
 
   document.querySelector('#value-table tbody').innerHTML = rows.map(r => `
     <tr>
@@ -1477,6 +1697,10 @@ wireSeg(document.getElementById('seg-year'), p => { buildYear(p); buildHeatmap(p
 
 // Last, and deliberately un-awaited: the page is already complete by this point,
 // so a slow or unreachable API costs nothing but the extra line it would have added.
+// the drought card redraws because the current-streak marker only exists once live kc lands
+fetchWom().then(live => { LIVE_KC = live; renderLiveKc(); buildDroughts(); }).catch(() => {});
+// prices refresh in place; the timeline tooltips read PRICES directly and pick it up on next hover
+refreshPrices().then(ok => { if(ok) buildValue(valuePlayer); }).catch(() => {});
 wireSeg(document.getElementById('seg-value'), buildValue);
 }
 if (window.Chart) { initDashboard(); } else { window.addEventListener('load', initDashboard); }
