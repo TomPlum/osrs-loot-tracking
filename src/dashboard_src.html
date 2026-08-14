@@ -196,6 +196,40 @@
   .dot{width:9px;height:9px;border-radius:2px;display:inline-block;}
   .dash{width:2px;height:13px;display:inline-block;background:repeating-linear-gradient(180deg,var(--gold) 0 4px,transparent 4px 7px);}
   .legend-sub{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--parchment-faint);margin-left:3px;}
+  .luck-verdict{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.06em;
+    color:var(--parchment-dim);background:var(--stone-800);border:1px solid var(--stone-700);
+    border-radius:7px;padding:5px 11px;}
+  .luck-verdict b{color:var(--gold-bright);}
+
+  /* ---------- collection-log firsts ---------- */
+  .first-row{display:grid;grid-template-columns:24px 1fr auto auto;align-items:center;gap:12px;
+    padding:8px 2px;border-bottom:1px solid var(--stone-800);}
+  .first-row:last-child{border-bottom:none;}
+  .first-n{font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--parchment-faint);text-align:right;}
+  .first-item{font-weight:600;color:var(--parchment);font-size:13.5px;display:flex;align-items:center;gap:9px;}
+  .first-date{font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--parchment-dim);}
+  .first-date.unknown{color:var(--parchment-faint);font-style:italic;}
+  .first-row.done{background:linear-gradient(90deg,rgba(212,175,55,.09),transparent);}
+  .first-row.done .first-n{color:var(--gold-bright);}
+
+  /* ---------- calendar heatmap ---------- */
+  .heat-scroll{overflow-x:auto;padding-bottom:4px;}
+  .heat-row{display:flex;align-items:center;gap:3px;margin-bottom:3px;}
+  .heat-label{width:32px;flex:none;font-family:'JetBrains Mono',monospace;font-size:10px;
+    color:var(--parchment-faint);letter-spacing:.04em;}
+  .heat-cell{width:9px;height:9px;flex:none;border-radius:2px;background:var(--stone-800);}
+  .heat-cell.l1{background:#3d5233;}
+  .heat-cell.l2{background:var(--jungle);}
+  .heat-cell.l3{background:var(--jungle-bright);}
+  .heat-cell.l4{background:var(--gold);}
+  .heat-cell.l5{background:var(--gold-bright);}
+  .heat-cell.void{background:transparent;}
+  .heat-months{display:flex;gap:3px;margin:0 0 5px 35px;}
+  .heat-month{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--parchment-faint);
+    flex:none;overflow:visible;white-space:nowrap;}
+  .heat-scale{display:flex;align-items:center;gap:5px;font-family:'JetBrains Mono',monospace;
+    font-size:10px;color:var(--parchment-faint);}
+  .heat-scale .heat-cell{width:10px;height:10px;}
   .legend-item a{color:inherit;text-decoration:none;border-bottom:1px dotted var(--stone-700);}
   .legend-item a:hover{color:var(--gold-bright);border-bottom-color:var(--gold-bright);}
 
@@ -463,12 +497,39 @@
         <div class="legend-row" id="who-legend"></div>
       </div>
     </div>
+    <div class="card" style="margin-top:18px">
+      <div class="chart-head">
+        <span class="chart-lede">First of each unique — filling the collection log</span>
+        <span class="luck-verdict" id="firsts-verdict"></span>
+      </div>
+      <div id="firsts"></div>
+      <div class="est-note" id="firsts-note"></div>
+    </div>
   </section>
 
   <section class="divider-top">
     <div class="sec-head">
-      <div class="sec-title"><span class="tag">05</span>Loot Value</div>
-      <div class="sec-note">Live Grand Exchange prices for every purple in the log. Tom / Will views include shared drops (either brother).</div>
+      <div class="sec-title"><span class="tag">05</span>Luck vs the Drop Table</div>
+      <div class="sec-note">What the Ancient chest owed them against what it actually gave. No raid counts or points needed — only the shares within the unique table itself.</div>
+    </div>
+    <div class="card">
+      <div class="chart-head">
+        <span class="chart-lede">Surplus / deficit vs expectation</span>
+        <span class="luck-verdict" id="luck-verdict"></span>
+      </div>
+      <canvas id="luckChart" height="150"></canvas>
+      <div class="legend-row">
+        <span class="legend-item"><span class="dot" style="background:var(--gold-bright)"></span>Above expectation</span>
+        <span class="legend-item"><span class="dot" style="background:var(--blood-bright)"></span>Below expectation</span>
+      </div>
+      <div class="est-note" id="luck-note"></div>
+    </div>
+  </section>
+
+  <section class="divider-top">
+    <div class="sec-head">
+      <div class="sec-title"><span class="tag">06</span>Loot Value</div>
+      <div class="sec-note">Grand Exchange prices for every purple in the log. Tom / Will views are split by the estimated attribution, so they don't double-count.</div>
     </div>
     <div class="card">
       <div class="chart-head">
@@ -496,8 +557,8 @@
 
   <section class="divider-top">
     <div class="sec-head">
-      <div class="sec-title"><span class="tag">06</span>Drops per Year</div>
-      <div class="sec-note">2022 was the peak — the year Challenge Mode was unlocked and pushed hard.</div>
+      <div class="sec-title"><span class="tag">07</span>Drops per Year</div>
+      <div class="sec-note">2022 was the peak — the year Challenge Mode was unlocked and pushed hard. The heatmap below shows how bursty the raiding really is.</div>
     </div>
     <div class="card">
       <div class="chart-head">
@@ -510,11 +571,19 @@
       </div>
       <canvas id="yearChart" height="80"></canvas>
     </div>
+    <div class="card" style="margin-top:18px">
+      <div class="chart-head">
+        <span class="chart-lede">Every week since 2020</span>
+        <span class="heat-scale" id="heat-scale"></span>
+      </div>
+      <div class="heat-scroll"><div id="heatmap"></div></div>
+      <div class="est-note" id="heat-note"></div>
+    </div>
   </section>
 
   <section class="divider-top">
     <div class="sec-head">
-      <div class="sec-title"><span class="tag">07</span>Loot by Raider</div>
+      <div class="sec-title"><span class="tag">08</span>Loot by Raider</div>
       <div class="sec-note">Reconciled from Tom &amp; Will's collection logs — shared duplicates can't be split by date, but these totals are exact.</div>
     </div>
     <div class="card">
@@ -530,7 +599,7 @@
 
   <section class="divider-top">
     <div class="sec-head">
-      <div class="sec-title"><span class="tag">08</span>Recent Feed</div>
+      <div class="sec-title"><span class="tag">09</span>Recent Feed</div>
       <div class="sec-note">Last 12 logged drops, most recent first.</div>
     </div>
     <div class="card">
@@ -1136,6 +1205,209 @@ document.getElementById('feed').innerHTML = recent.map(e => `
   </div>
 `).join("");
 
+// ---------- collection-log firsts ----------
+// When each unique was first seen. The six undated 2020 rows sort first: they're
+// genuinely the earliest, we just can't say which day.
+function buildFirsts(){
+  const firsts = {};
+  DATA.forEach(e => {
+    const key = e.iso || '0000';                 // undated sorts ahead of every real date
+    if(!firsts[e.item] || key < firsts[e.item].key) firsts[e.item] = { key, e };
+  });
+  const list = Object.entries(firsts).sort((a, b) => a[1].key.localeCompare(b[1].key));
+  const lastDated = list.filter(([, v]) => v.e.iso).pop();
+
+  document.getElementById('firsts').innerHTML = list.map(([item, { e }], i) => {
+    const done = i === list.length - 1;
+    const ic = iconFor(item);
+    return `<div class="first-row${done ? ' done' : ''}">
+      <span class="first-n">${i + 1}</span>
+      <span class="first-item">${ic ? `<img class="loot-ico" src="${ic}" alt="">` : ''}${item}</span>
+      <span class="first-date${e.iso ? '' : ' unknown'}">${e.iso ? fmtDropDate(e.iso) : 'sometime in 2020'}</span>
+      <span class="feed-mode ${e.mode === 'CM' ? 'cm' : 'reg'}">${e.iso ? e.kc + ' kc ' : ''}${e.mode}</span>
+    </div>`;
+  }).join("");
+
+  document.getElementById('firsts-verdict').innerHTML =
+    `all <b>${list.length}</b> collected`;
+
+  // the longest wait for something genuinely new, among the dated firsts
+  const datedFirsts = list.filter(([, v]) => v.e.iso).map(([item, v]) => ({ item, iso: v.e.iso }));
+  let wait = 0, waitFor = null;
+  for(let i = 1; i < datedFirsts.length; i++){
+    const g = (Date.parse(datedFirsts[i].iso) - Date.parse(datedFirsts[i-1].iso)) / 864e5;
+    if(g > wait){ wait = g; waitFor = datedFirsts[i]; }
+  }
+  document.getElementById('firsts-note').innerHTML =
+    `The log finished on <b>${fmtDropDate(lastDated[1].e.iso)}</b> with
+     <b>${lastDated[0]}</b> — every CoX unique obtained. The longest wait for a
+     first was <b>${Math.round(wait / 30.44)} months</b> before ${waitFor.item} landed.
+     Regular Chambers supplied the first <b>${list.findIndex(([, v]) => v.e.mode === 'CM')}</b>;
+     everything after came from Challenge Mode.`;
+}
+buildFirsts();
+
+// ---------- calendar heatmap ----------
+// One row per year, one cell per week. Day-level would be ~96% empty at this
+// volume; weeks keep the bursts legible (2022 lights up, 2025 is a void).
+const HEAT_MAX = 4; // 4+ purples in a week saturates the scale
+function weekOfYear(iso){
+  const [y, m, d] = iso.split('-').map(Number);
+  const jan1 = new Date(Date.UTC(y, 0, 1));
+  const day = (Date.UTC(y, m - 1, d) - jan1.getTime()) / 864e5;
+  return Math.min(52, Math.floor((day + jan1.getUTCDay()) / 7));
+}
+function buildHeatmap(player){
+  const src = dated.filter(e => matchesPlayer(e, player));
+  const years = [];
+  for(let y = +dated[0].iso.slice(0,4); y <= +todayIso.slice(0,4); y++) years.push(y);
+
+  const cells = {};                       // "year:week" -> [drops]
+  src.forEach(e => {
+    const k = e.iso.slice(0,4) + ':' + weekOfYear(e.iso);
+    (cells[k] = cells[k] || []).push(e);
+  });
+
+  // month ruler: label at the week each month starts, in a reference year
+  const monthRow = Array.from({length: 53}, () => '');
+  MONTHS.forEach((name, i) => { monthRow[weekOfYear(`2022-${String(i+1).padStart(2,'0')}-01`)] = name; });
+  let html = '<div class="heat-months">' + monthRow.map(m =>
+    `<span class="heat-month" style="width:9px">${m}</span>`).join('') + '</div>';
+
+  const nowWeek = weekOfYear(todayIso), nowYear = +todayIso.slice(0,4);
+  years.forEach(y => {
+    html += `<div class="heat-row"><span class="heat-label">${y}</span>`;
+    for(let w = 0; w <= 52; w++){
+      // weeks that haven't happened yet get no cell at all, not an empty one
+      if(y === nowYear && w > nowWeek){ html += '<span class="heat-cell void"></span>'; continue; }
+      const drops = cells[y + ':' + w] || [];
+      const lvl = drops.length ? Math.min(5, drops.length + 1) : 0;
+      const title = drops.length
+        ? `${y} week ${w + 1} — ${drops.length} purple${drops.length > 1 ? 's' : ''}: ` +
+          drops.map(d => `${d.item} (${d.mode} ${d.kc}kc)`).join(', ')
+        : `${y} week ${w + 1} — nothing`;
+      html += `<span class="heat-cell${lvl ? ' l' + lvl : ''}" title="${title.replace(/"/g,'&quot;')}"></span>`;
+    }
+    html += '</div>';
+  });
+  document.getElementById('heatmap').innerHTML = html;
+
+  document.getElementById('heat-scale').innerHTML = 'none' +
+    [0,1,2,3,4].map(l => `<span class="heat-cell${l ? ' l' + (l+1) : ''}"></span>`).join('') +
+    `${HEAT_MAX}+`;
+
+  // the standout facts, computed rather than asserted
+  const isos = src.map(e => e.iso).sort();
+  let gap = 0, gapAt = null;
+  for(let i = 1; i < isos.length; i++){
+    const g = (Date.parse(isos[i]) - Date.parse(isos[i-1])) / 864e5;
+    if(g > gap){ gap = g; gapAt = [isos[i-1], isos[i]]; }
+  }
+  const live = Object.keys(cells).length;
+  const weeksSpan = Math.round((Date.parse(isos[isos.length-1]) - Date.parse(isos[0])) / 864e5 / 7);
+  document.getElementById('heat-note').innerHTML = gapAt
+    ? `Purples landed in <b>${live}</b> of roughly <b>${weeksSpan}</b> weeks — the raiding comes in
+       bursts, not a trickle. Longest drought: <b>${Math.round(gap)} days</b> between
+       ${fmtDropDate(gapAt[0])} and ${fmtDropDate(gapAt[1])}.
+       The six undated 2020 drops can't be placed and are left out.`
+    : '';
+}
+
+// ---------- luck vs the drop table ----------
+// The Ancient chest unique table has fixed weights, so expectation needs no raid
+// count and no points estimate -- only the shares within the table itself.
+// https://oldschool.runescape.wiki/w/Ancient_chest
+//
+// The 12 Aug 2026 rebalance split one table into three: prayer scrolls got rarer
+// (-19.5% regular, -26.1% CM) and each ancestral piece went 3 -> 4. So a drop's
+// expectation depends on when it fell and, after the change, which mode it was.
+const LUCK_TABLES = {
+  // pre-12 Aug 2026, both modes (total 69)
+  old: {"Dexterous Prayer Scroll":20,"Arcane Prayer Scroll":20,"Twisted Buckler":4,
+        "Dragon Hunter Crossbow":4,"Dinh's Bulwark":3,"Ancestral Hat":3,"Ancestral Robe Top":3,
+        "Ancestral Robe Bottom":3,"Dragon Claws":3,"Elder Maul":2,"Kodai Insignia":2,"Twisted Bow":2},
+  // post-rebalance regular (total 60)
+  reg: {"Dexterous Prayer Scroll":14,"Arcane Prayer Scroll":14,"Ancestral Hat":4,"Ancestral Robe Top":4,
+        "Ancestral Robe Bottom":4,"Twisted Buckler":4,"Dragon Hunter Crossbow":4,"Dragon Claws":3,
+        "Dinh's Bulwark":3,"Elder Maul":2,"Kodai Insignia":2,"Twisted Bow":2},
+  // post-rebalance challenge mode (total 56)
+  cm:  {"Dexterous Prayer Scroll":12,"Arcane Prayer Scroll":12,"Ancestral Hat":4,"Ancestral Robe Top":4,
+        "Ancestral Robe Bottom":4,"Twisted Buckler":4,"Dragon Hunter Crossbow":4,"Dragon Claws":3,
+        "Dinh's Bulwark":3,"Elder Maul":2,"Kodai Insignia":2,"Twisted Bow":2},
+};
+const LUCK_SUMS = Object.fromEntries(Object.entries(LUCK_TABLES)
+  .map(([k, t]) => [k, Object.values(t).reduce((a, b) => a + b, 0)]));
+// kits, dust and the pet are separate rolls, not part of this table
+const inLuckTable = item => item in LUCK_TABLES.old;
+function tableFor(e){
+  if(e.iso && e.iso >= RATE_CHANGE_ISO) return e.mode === 'CM' ? 'cm' : 'reg';
+  return 'old';
+}
+function buildLuck(){
+  const rolls = DATA.filter(e => inLuckTable(e.item));
+  const items = Object.keys(LUCK_TABLES.old);
+  // Poisson-binomial: every roll carries its own per-item probability, so expectation
+  // and variance are summed per drop rather than taken off one flat ratio
+  const exp = {}, varr = {}, obs = {};
+  items.forEach(it => { exp[it] = 0; varr[it] = 0; obs[it] = 0; });
+  rolls.forEach(e => {
+    const key = tableFor(e), t = LUCK_TABLES[key], sum = LUCK_SUMS[key];
+    items.forEach(it => { const p = (t[it] || 0) / sum; exp[it] += p; varr[it] += p * (1 - p); });
+    obs[e.item]++;
+  });
+  const rows = items.map(it => ({
+    item: it, obs: obs[it], exp: exp[it], d: obs[it] - exp[it],
+    z: varr[it] > 0 ? (obs[it] - exp[it]) / Math.sqrt(varr[it]) : 0,
+  })).sort((a, b) => b.d - a.d);
+
+  new Chart(document.getElementById('luckChart'), {
+    type: 'bar',
+    data: {
+      labels: rows.map(r => r.item),
+      datasets: [{
+        data: rows.map(r => r.d),
+        backgroundColor: rows.map(r => r.d >= 0 ? GOLD_BRIGHT : BLOOD_BRIGHT),
+        borderColor: '#1a1510', borderWidth: 1, borderRadius: 3,
+      }],
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor:'#1a1510', borderColor:'#3a2f22', borderWidth:1,
+          titleColor: GOLD_BRIGHT, bodyColor: PARCH, padding: 10, displayColors: false,
+          callbacks: {
+            title: i => rows[i[0].dataIndex].item,
+            label: i => { const r = rows[i.dataIndex];
+              return [`Got ${r.obs}, expected ${r.exp.toFixed(1)}`,
+                      `${r.d >= 0 ? '+' : ''}${r.d.toFixed(1)}  (${r.z >= 0 ? '+' : ''}${r.z.toFixed(1)}σ)`]; },
+          },
+        },
+      },
+      scales: {
+        x: { ticks:{ color: PARCH_FAINT, font:{size:11} }, grid:{ color:'#2a211855' },
+             title:{ display:true, text:'Drops above / below expectation', color:PARCH_FAINT, font:{size:11} } },
+        y: { ticks:{ color: PARCH_DIM, font:{size:11} }, grid:{ display:false } },
+      },
+    },
+  });
+
+  const best = rows[0], worst = rows[rows.length - 1];
+  const maxZ = Math.max(...rows.map(r => Math.abs(r.z)));
+  document.getElementById('luck-verdict').innerHTML =
+    `${rolls.length} table rolls · worst swing <b>${maxZ.toFixed(1)}σ</b>`;
+  document.getElementById('luck-note').innerHTML =
+    `Luckiest: <b>${best.item}</b> at ${best.obs} for ${best.exp.toFixed(1)} expected. ` +
+    `Unluckiest: <b>${worst.item}</b> at ${worst.obs} for ${worst.exp.toFixed(1)}. ` +
+    `Nothing is beyond <b>${maxZ.toFixed(1)}σ</b>, so across ${rolls.length} rolls this is an ` +
+    `unremarkable spread — the table has been honest. Expected counts are small for the rare items, ` +
+    `so treat individual σ figures as rough. No Tom/Will split here: the shared-drop estimate is ` +
+    `derived from the collection totals, so per-brother luck would partly just replay its own input.`;
+}
+buildLuck();
+
 // ---------- loot value (live GE prices, oldschool.runescape.wiki) ----------
 const PRICES = {
   "Twisted Bow": 1394300495,
@@ -1197,9 +1469,14 @@ function buildValue(player){
 // ---------- initial render + selector wiring ----------
 buildTimeline('both');
 buildYear('both');
+buildHeatmap('both');
 buildValue('both');
 wireSeg(document.getElementById('seg-timeline'), buildTimeline);
-wireSeg(document.getElementById('seg-year'), buildYear);
+// the year card and the heatmap share one selector, so they can't disagree
+wireSeg(document.getElementById('seg-year'), p => { buildYear(p); buildHeatmap(p); });
+
+// Last, and deliberately un-awaited: the page is already complete by this point,
+// so a slow or unreachable API costs nothing but the extra line it would have added.
 wireSeg(document.getElementById('seg-value'), buildValue);
 }
 if (window.Chart) { initDashboard(); } else { window.addEventListener('load', initDashboard); }
