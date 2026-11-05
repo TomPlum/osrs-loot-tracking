@@ -44,7 +44,7 @@ Tom and Will raid together, so most drops can't be pinned to one brother. The `P
 - `Aaron IM` — Aaron's (guest ironman).
 - blank — can't be pinned even to a brother.
 
-Per-item **totals** are exact (reconciled from both collection logs: lifetime **Tom 55 / Will 49**),
+Per-item **totals** are exact (reconciled from both collection logs: lifetime **Tom 55 / Will 50**),
 even though individual shared rows aren't. In the dashboard JS the raw values are `"Tom"`, `"Will"`,
 `"Tom/Will"`, `"Aaron IM"`, or `null`.
 

@@ -95,3 +95,4 @@ Date        Item                      KC  Mode     Player    Notes
 17/01/2026  Arcane Prayer Scroll     365  CM       Tom
 15/07/2026  Twisted Buckler          375  CM       Tom
 14/08/2026  Twisted Bow              380  CM       Will
+05/11/2026  Dinh's Bulwark           395  CM       Will

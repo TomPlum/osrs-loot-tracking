@@ -3,7 +3,7 @@
 A drop log and interactive dashboard for **Chambers of Xeric** (Great Olm) purples, tracked by
 the **Wolfo Bros** — **Wolfo** (Tom) & **Wolfo JR** (Will) — with the occasional guest raid from Aaron.
 
-95 uniques logged since August 2020, spanning the old standard-Chambers grind and the Challenge Mode era.
+96 uniques logged since August 2020, spanning the old standard-Chambers grind and the Challenge Mode era.
 
 ## Live dashboard
 
@@ -96,7 +96,7 @@ Per-item **totals** are exact even where individual rows aren't. Reconciled from
 
 | | Tom | Will |
 |---|----:|----:|
-| **Lifetime CoX uniques** | 55 | 49 |
+| **Lifetime CoX uniques** | 55 | 50 |
 
 Some collection-log counts (prayer scrolls, bucklers, kits, DH crossbow) exceed what's in this log —
 those are lifetime totals and include raids that were never written down here.
